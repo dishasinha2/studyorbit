@@ -1,0 +1,378 @@
+⨯ Error: ENOENT: no such file or directory, open 'C:\Users\disha\OneDrive\Desktop\hackathon\.next\dev\server\app\api\daily-brief\[__metadata_id__]\route\app-paths-manifest.json'
+    at ignore-listed frames {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\disha\\OneDrive\\Desktop\\hackathon\\.next\\dev\\server\\app\\api\\daily-brief\\[__metadata_id__]\\route\\app-paths-manifest.json'
+}
+
+thread 'tokio-runtime-worker' (29896) panicked at C:\actions-runner\_work\next.js\next.js\turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:156:17:
+Failed to restore task data (corrupted database or bug): Meta for ResolveOrigin::get_inner_asset (TaskId 209938))
+
+Caused by:
+    0: Looking up data for TaskId 209938 from database failed
+    1: Unable to open static sorted file referenced from 00000378.meta
+    2: Unable to open static sorted file 00000374.sst
+    3: The system cannot find the path specified. (os error 3)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+thread 'tokio-runtime-worker' (31392) panicked at C:\actions-runner\_work\next.js\next.js\turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:156:17:
+Failed to restore task data (corrupted database or bug): Meta for ModuleAssetContext::resolve_options_context (TaskId 209945))
+
+Caused by:
+    0: Looking up data for TaskId 209945 from database failed
+    1: Unable to open static sorted file referenced from 00000446.meta
+    2: Unable to open static sorted file 00000441.sst
+    3: The system cannot find the path specified. (os error 3)
+⨯ Error: ENOENT: no such file or directory, open 'C:\Users\disha\OneDrive\Desktop\hackathon\.next\dev\server\app\api\events\[__metadata_id__]\route\app-paths-manifest.json'
+    at ignore-listed frames {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\disha\\OneDrive\\Desktop\\hackathon\\.next\\dev\\server\\app\\api\\events\\[__metadata_id__]\\route\\app-paths-manifest.json'
+}
+⨯ Error: ENOENT: no such file or directory, open 'C:\Users\disha\OneDrive\Desktop\hackathon\.next\dev\server\app\api\sticky\[__metadata_id__]\route\app-paths-manifest.json'
+    at ignore-listed frames {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\disha\\OneDrive\\Desktop\\hackathon\\.next\\dev\\server\\app\\api\\sticky\\[__metadata_id__]\\route\\app-paths-manifest.json'
+}
+⨯ Error: ENOENT: no such file or directory, open 'C:\Users\disha\OneDrive\Desktop\hackathon\.next\dev\server\app\api\focus\[__metadata_id__]\route\app-paths-manifest.json'
+    at ignore-listed frames {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\disha\\OneDrive\\Desktop\\hackathon\\.next\\dev\\server\\app\\api\\focus\\[__metadata_id__]\\route\\app-paths-manifest.json'
+}
+⨯ Error: ENOENT: no such file or directory, open 'C:\Users\disha\OneDrive\Desktop\hackathon\.next\dev\server\app\api\artifacts\[__metadata_id__]\route\app-paths-manifest.json'
+    at ignore-listed frames {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\disha\\OneDrive\\Desktop\\hackathon\\.next\\dev\\server\\app\\api\\artifacts\\[__metadata_id__]\\route\\app-paths-manifest.json'
+}
+⨯ Error: ENOENT: no such file or directory, open 'C:\Users\disha\OneDrive\Desktop\hackathon\.next\dev\server\app\api\artifacts\[__metadata_id__]\route\app-paths-manifest.json'
+    at ignore-listed frames {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\disha\\OneDrive\\Desktop\\hackathon\\.next\\dev\\server\\app\\api\\artifacts\\[__metadata_id__]\\route\\app-paths-manifest.json'
+}
+⨯ Error: ENOENT: no such file or directory, open 'C:\Users\disha\OneDrive\Desktop\hackathon\.next\dev\server\app\api\daily-brief\[__metadata_id__]\route\app-paths-manifest.json'
+    at ignore-listed frames {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\disha\\OneDrive\\Desktop\\hackathon\\.next\\dev\\server\\app\\api\\daily-brief\\[__metadata_id__]\\route\\app-paths-manifest.json'
+}
+⨯ Error: ENOENT: no such file or directory, open 'C:\Users\disha\OneDrive\Desktop\hackathon\.next\dev\server\app\api\events\[__metadata_id__]\route\app-paths-manifest.json'
+    at ignore-listed frames {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\disha\\OneDrive\\Desktop\\hackathon\\.next\\dev\\server\\app\\api\\events\\[__metadata_id__]\\route\\app-paths-manifest.json'
+}
+⨯ Error: ENOENT: no such file or directory, open 'C:\Users\disha\OneDrive\Desktop\hackathon\.next\dev\server\app\api\sticky\[__metadata_id__]\route\app-paths-manifest.json'
+    at ignore-listed frames {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\disha\\OneDrive\\Desktop\\hackathon\\.next\\dev\\server\\app\\api\\sticky\\[__metadata_id__]\\route\\app-paths-manifest.json'
+}
+⨯ Error: ENOENT: no such file or directory, open 'C:\Users\disha\OneDrive\Desktop\hackathon\.next\dev\server\app\api\focus\[__metadata_id__]\route\app-paths-manifest.json'
+    at ignore-listed frames {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\disha\\OneDrive\\Desktop\\hackathon\\.next\\dev\\server\\app\\api\\focus\\[__metadata_id__]\\route\\app-paths-manifest.json'
+}
+⨯ Error: ENOENT: no such file or directory, open 'C:\Users\disha\OneDrive\Desktop\hackathon\.next\dev\server\app\api\artifacts\[__metadata_id__]\route\app-paths-manifest.json'
+    at ignore-listed frames {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\disha\\OneDrive\\Desktop\\hackathon\\.next\\dev\\server\\app\\api\\artifacts\\[__metadata_id__]\\route\\app-paths-manifest.json'
+}
+⨯ Error: ENOENT: no such file or directory, open 'C:\Users\disha\OneDrive\Desktop\hackathon\.next\dev\server\app\api\artifacts\[__metadata_id__]\route\app-paths-manifest.json'
+    at ignore-listed frames {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\disha\\OneDrive\\Desktop\\hackathon\\.next\\dev\\server\\app\\api\\artifacts\\[__metadata_id__]\\route\\app-paths-manifest.json'
+}
+⨯ TypeError: Cannot convert undefined or null to object
+    at Function.values (<anonymous>)
+    at module evaluation (src\app\api\artifacts\route.ts:9:22)
+    at Object.<anonymous> (C:\Users\disha\OneDrive\Desktop\hackathon\.next\dev\server\app\api\artifacts\route.js:8:3)
+   7 |
+   8 | const artifactType = z.nativeEnum(ArtifactType);
+>  9 | const taskStatus = z.nativeEnum(TaskStatus);
+     |                      ^
+  10 |
+  11 | const createArtifactSchema = z.object({
+  12 |   title: z.string().min(2).max(120), {
+  page: '/api/artifacts'
+}
+⨯ TypeError: Cannot convert undefined or null to object
+    at Function.values (<anonymous>)
+    at module evaluation (src\app\api\artifacts\route.ts:9:22)
+    at Object.<anonymous> (C:\Users\disha\OneDrive\Desktop\hackathon\.next\dev\server\app\api\artifacts\route.js:8:3)
+   7 |
+   8 | const artifactType = z.nativeEnum(ArtifactType);
+>  9 | const taskStatus = z.nativeEnum(TaskStatus);
+     |                      ^
+  10 |
+  11 | const createArtifactSchema = z.object({
+  12 |   title: z.string().min(2).max(120), {
+  page: '/api/artifacts'
+}
+⨯ TypeError: Cannot convert undefined or null to object
+    at Function.values (<anonymous>)
+    at module evaluation (src\app\api\artifacts\route.ts:9:22)
+    at Object.<anonymous> (C:\Users\disha\OneDrive\Desktop\hackathon\.next\dev\server\app\api\artifacts\route.js:8:3)
+   7 |
+   8 | const artifactType = z.nativeEnum(ArtifactType);
+>  9 | const taskStatus = z.nativeEnum(TaskStatus);
+     |                      ^
+  10 |
+  11 | const createArtifactSchema = z.object({
+  12 |   title: z.string().min(2).max(120), {
+  page: '/api/artifacts'
+}
+⨯ Error [PrismaClientValidationError]: 
+Invalid `{imported module ./src/lib/prisma.ts}["prisma"].artifact.findMany()` invocation in
+C:\Users\disha\OneDrive\Desktop\hackathon\.next\dev\server\chunks\[root-of-the-server]__53c0a285._.js:199:147
+
+  196     },
+  197     take: 10
+  198 }),
+→ 199 {imported module ./src/lib/prisma.ts}["prisma"].artifact.findMany({
+        where: {
+          userId: "cmmamv0v60002ntwgh0n86ufc",
+          type: "TASK",
+          status: {
+          ~~~~~~
+            not: "COMPLETED"
+          },
+          dueAt: {
+            lt: new Date("2026-03-16T13:35:06.398Z")
+          },
+      ?   AND?: ArtifactWhereInput | ArtifactWhereInput[],
+      ?   OR?: ArtifactWhereInput[],
+      ?   NOT?: ArtifactWhereInput | ArtifactWhereInput[],
+      ?   id?: StringFilter | String,
+      ?   projectId?: StringNullableFilter | String | Null,
+      ?   title?: StringFilter | String,
+      ?   content?: StringFilter | String,
+      ?   source?: StringNullableFilter | String | Null,
+      ?   contextKey?: StringNullableFilter | String | Null,
+      ?   occurredAt?: DateTimeNullableFilter | DateTime | Null,
+      ?   isDone?: BoolFilter | Boolean,
+      ?   createdAt?: DateTimeFilter | DateTime,
+      ?   updatedAt?: DateTimeFilter | DateTime,
+      ?   project?: ProjectNullableScalarRelationFilter | ProjectWhereInput | Null,
+      ?   user?: UserProfileScalarRelationFilter | UserProfileWhereInput
+        },
+        orderBy: {
+          dueAt: "asc"
+        },
+        take: 8
+      })
+
+Unknown argument `status`. Available options are marked with ?.
+    at <unknown> (src\app\api\daily-brief\route.ts:25:21)
+    at async GET (src\app\api\daily-brief\route.ts:15:121)
+  23 |       take: 10,
+  24 |     }),
+> 25 |     prisma.artifact.findMany({
+     |                     ^
+  26 |       where: { userId: user.id, type: "TASK", status: { not: "COMPLETED" }, dueAt: { lt: new Date() } },
+  27 |       orderBy: { dueAt: "asc" },
+  28 |       take: 8, {
+  clientVersion: '6.16.0'
+}
+⨯ Error [PrismaClientValidationError]: 
+Invalid `{imported module ./src/lib/prisma.ts}["prisma"].artifact.findMany()` invocation in
+C:\Users\disha\OneDrive\Desktop\hackathon\.next\dev\server\chunks\[root-of-the-server]__53c0a285._.js:182:147
+
+  179         startAt: "asc"
+  180     }
+  181 }),
+→ 182 {imported module ./src/lib/prisma.ts}["prisma"].artifact.findMany({
+        where: {
+          userId: "cmmamv0v60002ntwgh0n86ufc",
+          type: "TASK",
+          status: {
+          ~~~~~~
+            not: "COMPLETED"
+          },
+          dueAt: {
+            gte: new Date("2026-03-15T18:30:00.000Z"),
+            lt: new Date("2026-03-16T18:30:00.000Z")
+          },
+      ?   AND?: ArtifactWhereInput | ArtifactWhereInput[],
+      ?   OR?: ArtifactWhereInput[],
+      ?   NOT?: ArtifactWhereInput | ArtifactWhereInput[],
+      ?   id?: StringFilter | String,
+      ?   projectId?: StringNullableFilter | String | Null,
+      ?   title?: StringFilter | String,
+      ?   content?: StringFilter | String,
+      ?   source?: StringNullableFilter | String | Null,
+      ?   contextKey?: StringNullableFilter | String | Null,
+      ?   occurredAt?: DateTimeNullableFilter | DateTime | Null,
+      ?   isDone?: BoolFilter | Boolean,
+      ?   createdAt?: DateTimeFilter | DateTime,
+      ?   updatedAt?: DateTimeFilter | DateTime,
+      ?   project?: ProjectNullableScalarRelationFilter | ProjectWhereInput | Null,
+      ?   user?: UserProfileScalarRelationFilter | UserProfileWhereInput
+        },
+        orderBy: {
+          dueAt: "asc"
+        },
+        take: 10
+      })
+
+Unknown argument `status`. Available options are marked with ?.
+    at <unknown> (src\app\api\daily-brief\route.ts:20:21)
+    at async GET (src\app\api\daily-brief\route.ts:15:121)
+  18 |       orderBy: { startAt: "asc" },
+  19 |     }),
+> 20 |     prisma.artifact.findMany({
+     |                     ^
+  21 |       where: { userId: user.id, type: "TASK", status: { not: "COMPLETED" }, dueAt: { gte: dayStart, lt: dayEnd } },
+  22 |       orderBy: { dueAt: "asc" },
+  23 |       take: 10, {
+  clientVersion: '6.16.0'
+}
+⨯ TypeError: Cannot convert undefined or null to object
+    at Function.values (<anonymous>)
+    at module evaluation (src\app\api\artifacts\route.ts:9:22)
+    at Object.<anonymous> (C:\Users\disha\OneDrive\Desktop\hackathon\.next\dev\server\app\api\artifacts\route.js:8:3)
+   7 |
+   8 | const artifactType = z.nativeEnum(ArtifactType);
+>  9 | const taskStatus = z.nativeEnum(TaskStatus);
+     |                      ^
+  10 |
+  11 | const createArtifactSchema = z.object({
+  12 |   title: z.string().min(2).max(120), {
+  page: '/api/artifacts'
+}
+⨯ TypeError: Cannot convert undefined or null to object
+    at Function.values (<anonymous>)
+    at module evaluation (src\app\api\artifacts\route.ts:9:22)
+    at Object.<anonymous> (C:\Users\disha\OneDrive\Desktop\hackathon\.next\dev\server\app\api\artifacts\route.js:8:3)
+   7 |
+   8 | const artifactType = z.nativeEnum(ArtifactType);
+>  9 | const taskStatus = z.nativeEnum(TaskStatus);
+     |                      ^
+  10 |
+  11 | const createArtifactSchema = z.object({
+  12 |   title: z.string().min(2).max(120), {
+  page: '/api/artifacts'
+}
+⨯ TypeError: Cannot convert undefined or null to object
+    at Function.values (<anonymous>)
+    at module evaluation (src\app\api\artifacts\route.ts:9:22)
+    at Object.<anonymous> (C:\Users\disha\OneDrive\Desktop\hackathon\.next\dev\server\app\api\artifacts\route.js:8:3)
+   7 |
+   8 | const artifactType = z.nativeEnum(ArtifactType);
+>  9 | const taskStatus = z.nativeEnum(TaskStatus);
+     |                      ^
+  10 |
+  11 | const createArtifactSchema = z.object({
+  12 |   title: z.string().min(2).max(120), {
+  page: '/api/artifacts'
+}
+⨯ Error [PrismaClientValidationError]: 
+Invalid `{imported module ./src/lib/prisma.ts}["prisma"].artifact.findMany()` invocation in
+C:\Users\disha\OneDrive\Desktop\hackathon\.next\dev\server\chunks\[root-of-the-server]__53c0a285._.js:182:147
+
+  179         startAt: "asc"
+  180     }
+  181 }),
+→ 182 {imported module ./src/lib/prisma.ts}["prisma"].artifact.findMany({
+        where: {
+          userId: "cmmamv0v60002ntwgh0n86ufc",
+          type: "TASK",
+          status: {
+          ~~~~~~
+            not: "COMPLETED"
+          },
+          dueAt: {
+            gte: new Date("2026-03-15T18:30:00.000Z"),
+            lt: new Date("2026-03-16T18:30:00.000Z")
+          },
+      ?   AND?: ArtifactWhereInput | ArtifactWhereInput[],
+      ?   OR?: ArtifactWhereInput[],
+      ?   NOT?: ArtifactWhereInput | ArtifactWhereInput[],
+      ?   id?: StringFilter | String,
+      ?   projectId?: StringNullableFilter | String | Null,
+      ?   title?: StringFilter | String,
+      ?   content?: StringFilter | String,
+      ?   source?: StringNullableFilter | String | Null,
+      ?   contextKey?: StringNullableFilter | String | Null,
+      ?   occurredAt?: DateTimeNullableFilter | DateTime | Null,
+      ?   isDone?: BoolFilter | Boolean,
+      ?   createdAt?: DateTimeFilter | DateTime,
+      ?   updatedAt?: DateTimeFilter | DateTime,
+      ?   project?: ProjectNullableScalarRelationFilter | ProjectWhereInput | Null,
+      ?   user?: UserProfileScalarRelationFilter | UserProfileWhereInput
+        },
+        orderBy: {
+          dueAt: "asc"
+        },
+        take: 10
+      })
+
+Unknown argument `status`. Available options are marked with ?.
+    at <unknown> (src\app\api\daily-brief\route.ts:20:21)
+    at async GET (src\app\api\daily-brief\route.ts:15:121)
+  18 |       orderBy: { startAt: "asc" },
+  19 |     }),
+> 20 |     prisma.artifact.findMany({
+     |                     ^
+  21 |       where: { userId: user.id, type: "TASK", status: { not: "COMPLETED" }, dueAt: { gte: dayStart, lt: dayEnd } },
+  22 |       orderBy: { dueAt: "asc" },
+  23 |       take: 10, {
+  clientVersion: '6.16.0'
+}
+⨯ TypeError: Cannot convert undefined or null to object
+    at Function.values (<anonymous>)
+    at module evaluation (src\app\api\artifacts\route.ts:9:22)
+    at Object.<anonymous> (C:\Users\disha\OneDrive\Desktop\hackathon\.next\dev\server\app\api\artifacts\route.js:8:3)
+   7 |
+   8 | const artifactType = z.nativeEnum(ArtifactType);
+>  9 | const taskStatus = z.nativeEnum(TaskStatus);
+     |                      ^
+  10 |
+  11 | const createArtifactSchema = z.object({
+  12 |   title: z.string().min(2).max(120), {
+  page: '/api/artifacts'
+}
+⨯ TypeError: Cannot convert undefined or null to object
+    at Function.values (<anonymous>)
+    at module evaluation (src\app\api\artifacts\route.ts:9:22)
+    at Object.<anonymous> (C:\Users\disha\OneDrive\Desktop\hackathon\.next\dev\server\app\api\artifacts\route.js:8:3)
+   7 |
+   8 | const artifactType = z.nativeEnum(ArtifactType);
+>  9 | const taskStatus = z.nativeEnum(TaskStatus);
+     |                      ^
+  10 |
+  11 | const createArtifactSchema = z.object({
+  12 |   title: z.string().min(2).max(120), {
+  page: '/api/artifacts'
+}
+⨯ TypeError: Cannot convert undefined or null to object
+    at Function.values (<anonymous>)
+    at module evaluation (src\app\api\artifacts\route.ts:9:22)
+    at Object.<anonymous> (C:\Users\disha\OneDrive\Desktop\hackathon\.next\dev\server\app\api\artifacts\route.js:8:3)
+   7 |
+   8 | const artifactType = z.nativeEnum(ArtifactType);
+>  9 | const taskStatus = z.nativeEnum(TaskStatus);
+     |                      ^
+  10 |
+  11 | const createArtifactSchema = z.object({
+  12 |   title: z.string().min(2).max(120), {
+  page: '/api/artifacts'
+}

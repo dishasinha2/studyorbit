@@ -1,0 +1,171 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum ArtifactType {
+  NOTE
+  LINK
+  FILE
+  TASK
+  CALENDAR
+  EMAIL
+}
+
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+}
+
+model UserProfile {
+  id             String         @id @default(cuid())
+  authId         String         @unique
+  name           String?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  projects       Project[]
+  artifacts      Artifact[]
+  events         PlannerEvent[]
+  stickyNotes    StickyNote[]
+  whiteboards    Whiteboard[]
+  videoBookmarks VideoBookmark[]
+  fileItems      FileItem[]
+  focusSessions  FocusSession[]
+}
+
+model Project {
+  id         String      @id @default(cuid())
+  userId     String
+  title      String
+  summary    String?
+  color      String      @default("#22d3ee")
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  user       UserProfile @relation(fields: [userId], references: [id], onDelete: Cascade)
+  artifacts  Artifact[]
+
+  @@index([userId, createdAt])
+}
+
+model Artifact {
+  id         String       @id @default(cuid())
+  userId     String
+  projectId  String?
+  title      String
+  content    String
+  type       ArtifactType
+  source     String?
+  contextKey String?
+  dueAt      DateTime?
+  occurredAt DateTime?
+  isDone     Boolean      @default(false)
+  status     TaskStatus    @default(PENDING)
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+  project    Project?     @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  user       UserProfile  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, type, createdAt])
+  @@index([projectId, createdAt])
+}
+
+model PlannerEvent {
+  id          String      @id @default(cuid())
+  userId      String
+  title       String
+  notes       String?
+  startAt     DateTime
+  endAt       DateTime?
+  reminderAt  DateTime?
+  isImportant Boolean     @default(false)
+  isDone      Boolean     @default(false)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  user        UserProfile @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, startAt])
+}
+
+model StickyNote {
+  id        String      @id @default(cuid())
+  userId    String
+  content   String
+  color     String      @default("#fef08a")
+  isPinned  Boolean     @default(true)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  user      UserProfile @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
+
+model Whiteboard {
+  id        String      @id @default(cuid())
+  userId    String
+  title     String
+  dataJson  String
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  user      UserProfile @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, updatedAt])
+}
+
+model VideoBookmark {
+  id        String      @id @default(cuid())
+  userId    String
+  title     String
+  url       String
+  comment   String?
+  tags      String?
+  isCompleted Boolean   @default(false)
+  completedAt DateTime?
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  user      UserProfile @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
+
+model FileItem {
+  id        String      @id @default(cuid())
+  userId    String
+  name      String
+  pathOrUrl String
+  originalFileName String?
+  mimeType  String?
+  sizeBytes Int?
+  storageData Bytes?
+  category  String?
+  subject   String?
+  tags      String?
+  lastPosition String?
+  progressNote String?
+  isCompleted Boolean   @default(false)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  user      UserProfile @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
+
+model FocusSession {
+  id             String      @id @default(cuid())
+  userId         String
+  durationMin    Int
+  breakMin       Int
+  screenLimitMin Int?
+  blockedList    String?
+  note           String?
+  startedAt      DateTime
+  endedAt        DateTime?
+  createdAt      DateTime    @default(now())
+  user           UserProfile @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}

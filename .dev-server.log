@@ -1,0 +1,580 @@
+
+> hackathon@0.1.0 dev
+> next dev -p 3000
+
+▲ Next.js 16.1.6 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://10.12.17.65:3000
+- Environments: .env
+
+✓ Starting...
+Creating turbopack project {
+  dir: 'C:\\Users\\disha\\OneDrive\\Desktop\\hackathon',
+  testMode: true
+}
+✓ Ready in 3s
+○ Compiling /workspace ...
+ GET /workspace?module=files 200 in 5.9s (compile: 5.6s, render: 332ms)
+ GET /workspace?module=files 200 in 5.9s (compile: 5.8s, render: 141ms)
+ GET /workspace?module=files 200 in 5.9s (compile: 5.7s, render: 229ms)
+ GET /workspace 200 in 6.0s (compile: 5.7s, render: 204ms)
+ GET /workspace?module=files 200 in 6.0s (compile: 5.8s, render: 135ms)
+ GET /workspace?module=focus-lab 200 in 6.0s (compile: 5.9s, render: 91ms)
+ GET /workspace?module=dashboard 200 in 227ms (compile: 60ms, render: 167ms)
+ GET /workspace 200 in 233ms (compile: 21ms, render: 212ms)
+ GET /workspace?module=dashboard 200 in 231ms (compile: 95ms, render: 136ms)
+ GET /workspace?module=dashboard 200 in 230ms (compile: 171ms, render: 58ms)
+ GET /workspace?module=dashboard 200 in 235ms (compile: 134ms, render: 102ms)
+ GET /workspace?module=notes 200 in 199ms (compile: 152ms, render: 48ms)
+ GET /workspace?module=dashboard 200 in 214ms (compile: 18ms, render: 196ms)
+ GET /workspace?module=files 200 in 215ms (compile: 74ms, render: 140ms)
+ GET /workspace?module=notes 200 in 215ms (compile: 122ms, render: 93ms)
+ GET /dashboard 200 in 2.6s (compile: 960ms, render: 1620ms)
+ GET / 200 in 816ms (compile: 654ms, render: 163ms)
+ GET /dashboard 200 in 225ms (compile: 12ms, render: 213ms)
+ GET /workspace?module=dashboard 200 in 72ms (compile: 16ms, render: 56ms)
+ GET /api/daily-brief 200 in 157ms (compile: 20ms, render: 137ms)
+ GET /api/events 200 in 153ms (compile: 35ms, render: 118ms)
+ GET /api/sticky 200 in 138ms (compile: 30ms, render: 108ms)
+ GET /api/focus 200 in 142ms (compile: 46ms, render: 97ms)
+ GET /api/artifacts?type=NOTE 200 in 152ms (compile: 71ms, render: 81ms)
+ GET /api/artifacts?type=TASK 200 in 141ms (compile: 76ms, render: 65ms)
+ GET /api/artifacts?type=LINK 200 in 39ms (compile: 17ms, render: 22ms)
+ GET /api/whiteboards 200 in 599ms (compile: 349ms, render: 251ms)
+ GET /api/videos 200 in 603ms (compile: 439ms, render: 164ms)
+ GET /api/files 200 in 610ms (compile: 557ms, render: 53ms)
+ POST /api/artifacts 201 in 85ms (compile: 11ms, render: 75ms)
+ GET /api/events 200 in 270ms (compile: 57ms, render: 213ms)
+ GET /api/sticky 200 in 274ms (compile: 74ms, render: 200ms)
+ GET /api/daily-brief 200 in 284ms (compile: 43ms, render: 241ms)
+ GET /api/focus 200 in 212ms (compile: 116ms, render: 96ms)
+ GET /api/artifacts?type=NOTE 200 in 216ms (compile: 130ms, render: 87ms)
+ GET /api/artifacts?type=TASK 200 in 221ms (compile: 141ms, render: 80ms)
+ GET /api/artifacts?type=LINK 200 in 80ms (compile: 13ms, render: 67ms)
+ GET /api/whiteboards 200 in 84ms (compile: 25ms, render: 59ms)
+ GET /api/videos 200 in 89ms (compile: 43ms, render: 46ms)
+ GET /api/files 200 in 48ms (compile: 13ms, render: 35ms)
+ GET /workspace?module=dashboard 200 in 65ms (compile: 12ms, render: 52ms)
+ POST /api/events 201 in 62ms (compile: 7ms, render: 55ms)
+ GET /api/events 200 in 96ms (compile: 15ms, render: 81ms)
+ GET /api/daily-brief 200 in 100ms (compile: 26ms, render: 74ms)
+ GET /api/sticky 200 in 102ms (compile: 20ms, render: 83ms)
+ GET /api/focus 200 in 107ms (compile: 30ms, render: 77ms)
+ GET /api/artifacts?type=NOTE 200 in 81ms (compile: 28ms, render: 53ms)
+ GET /api/artifacts?type=TASK 200 in 92ms (compile: 44ms, render: 49ms)
+ GET /api/artifacts?type=LINK 200 in 84ms (compile: 15ms, render: 69ms)
+ GET /api/whiteboards 200 in 87ms (compile: 31ms, render: 56ms)
+ GET /api/videos 200 in 59ms (compile: 14ms, render: 44ms)
+ GET /api/files 200 in 63ms (compile: 25ms, render: 38ms)
+ GET /workspace?module=files 200 in 63ms (compile: 14ms, render: 48ms)
+ GET /workspace?module=videos 200 in 47ms (compile: 11ms, render: 36ms)
+ GET /workspace?module=notes 200 in 52ms (compile: 15ms, render: 37ms)
+ GET /workspace?module=study-links 200 in 54ms (compile: 12ms, render: 42ms)
+ GET /workspace?module=focus-lab 200 in 48ms (compile: 10ms, render: 37ms)
+ GET /workspace?module=quick-capture 200 in 47ms (compile: 10ms, render: 37ms)
+ GET /dashboard 200 in 92ms (compile: 11ms, render: 82ms)
+ GET /workspace?module=dashboard 200 in 52ms (compile: 10ms, render: 42ms)
+ GET /api/daily-brief 200 in 97ms (compile: 14ms, render: 82ms)
+ GET /api/events 200 in 99ms (compile: 31ms, render: 68ms)
+ GET /api/sticky 200 in 103ms (compile: 21ms, render: 82ms)
+ GET /api/focus 200 in 106ms (compile: 37ms, render: 69ms)
+ GET /api/artifacts?type=NOTE 200 in 98ms (compile: 51ms, render: 48ms)
+ GET /api/artifacts?type=TASK 200 in 100ms (compile: 64ms, render: 36ms)
+ GET /api/artifacts?type=LINK 200 in 62ms (compile: 9ms, render: 53ms)
+ GET /api/whiteboards 200 in 65ms (compile: 17ms, render: 47ms)
+ GET /api/videos 200 in 44ms (compile: 9ms, render: 35ms)
+ GET /api/files 200 in 47ms (compile: 18ms, render: 29ms)
+✓ Compiled in 424ms
+ GET /api/daily-brief 200 in 127ms (compile: 22ms, render: 104ms)
+ GET /api/events 200 in 127ms (compile: 31ms, render: 96ms)
+ GET /api/sticky 200 in 117ms (compile: 28ms, render: 90ms)
+ GET /api/focus 200 in 122ms (compile: 38ms, render: 84ms)
+ GET /api/artifacts?type=NOTE 200 in 127ms (compile: 49ms, render: 78ms)
+ GET /api/artifacts?type=TASK 200 in 123ms (compile: 71ms, render: 52ms)
+ GET /api/artifacts?type=LINK 200 in 91ms (compile: 12ms, render: 79ms)
+ GET /api/whiteboards 200 in 99ms (compile: 30ms, render: 70ms)
+ GET /api/videos 200 in 71ms (compile: 15ms, render: 56ms)
+ GET /api/files 200 in 77ms (compile: 30ms, render: 47ms)
+ GET /workspace?module=notes 200 in 348ms (compile: 281ms, render: 67ms)
+✓ Compiled in 742ms
+ GET /api/daily-brief 200 in 171ms (compile: 20ms, render: 152ms)
+ GET /api/events 200 in 178ms (compile: 44ms, render: 133ms)
+ GET /api/sticky 200 in 164ms (compile: 50ms, render: 113ms)
+ GET /api/focus 200 in 169ms (compile: 74ms, render: 94ms)
+ GET /api/artifacts?type=NOTE 200 in 171ms (compile: 89ms, render: 82ms)
+ GET /api/artifacts?type=TASK 200 in 176ms (compile: 106ms, render: 70ms)
+ GET /api/artifacts?type=LINK 200 in 117ms (compile: 17ms, render: 100ms)
+ GET /api/whiteboards 200 in 117ms (compile: 34ms, render: 83ms)
+ GET /api/videos 200 in 122ms (compile: 58ms, render: 64ms)
+ GET /api/files 200 in 104ms (compile: 60ms, render: 44ms)
+ GET /workspace?module=quick-capture 200 in 761ms (compile: 592ms, render: 169ms)
+ GET /workspace?module=dashboard 200 in 117ms (compile: 28ms, render: 89ms)
+✓ Compiled in 420ms
+ GET /api/daily-brief 200 in 115ms (compile: 23ms, render: 92ms)
+ GET /api/events 200 in 130ms (compile: 32ms, render: 98ms)
+ GET /api/sticky 200 in 120ms (compile: 31ms, render: 89ms)
+ GET /api/focus 200 in 124ms (compile: 42ms, render: 82ms)
+ GET /api/artifacts?type=NOTE 200 in 128ms (compile: 59ms, render: 69ms)
+ GET /api/artifacts?type=TASK 200 in 97ms (compile: 27ms, render: 69ms)
+ GET /api/artifacts?type=LINK 200 in 69ms (compile: 18ms, render: 50ms)
+ GET /api/whiteboards 200 in 82ms (compile: 23ms, render: 59ms)
+ GET /api/videos 200 in 61ms (compile: 20ms, render: 41ms)
+ GET /api/files 200 in 66ms (compile: 35ms, render: 31ms)
+✓ Compiled in 681ms
+ GET /api/daily-brief 200 in 122ms (compile: 22ms, render: 100ms)
+ GET /api/events 200 in 143ms (compile: 39ms, render: 105ms)
+ GET /api/sticky 200 in 143ms (compile: 43ms, render: 101ms)
+ GET /api/focus 200 in 148ms (compile: 59ms, render: 89ms)
+ GET /api/artifacts?type=NOTE 200 in 126ms (compile: 58ms, render: 68ms)
+ GET /api/artifacts?type=TASK 200 in 103ms (compile: 45ms, render: 58ms)
+ GET /api/artifacts?type=LINK 200 in 94ms (compile: 21ms, render: 73ms)
+ GET /api/whiteboards 200 in 97ms (compile: 33ms, render: 64ms)
+ GET /api/videos 200 in 63ms (compile: 13ms, render: 50ms)
+ GET /api/files 200 in 68ms (compile: 28ms, render: 40ms)
+ GET /workspace?module=dashboard 200 in 1824ms (compile: 475ms, render: 1349ms)
+ GET /api/daily-brief 200 in 185ms (compile: 20ms, render: 165ms)
+ GET /api/events 200 in 188ms (compile: 39ms, render: 150ms)
+ GET /api/sticky 200 in 196ms (compile: 58ms, render: 138ms)
+ GET /api/focus 200 in 183ms (compile: 66ms, render: 117ms)
+ GET /api/artifacts?type=NOTE 200 in 188ms (compile: 88ms, render: 101ms)
+ GET /api/artifacts?type=TASK 200 in 148ms (compile: 70ms, render: 78ms)
+ GET /api/artifacts?type=LINK 200 in 133ms (compile: 11ms, render: 122ms)
+ GET /api/whiteboards 200 in 138ms (compile: 32ms, render: 106ms)
+ GET /api/videos 200 in 145ms (compile: 58ms, render: 87ms)
+ GET /api/files 200 in 84ms (compile: 27ms, render: 57ms)
+ GET /workspace?module=notes 200 in 100ms (compile: 24ms, render: 76ms)
+ GET /workspace?module=notes 200 in 268ms (compile: 17ms, render: 252ms)
+ GET /api/daily-brief 200 in 180ms (compile: 22ms, render: 158ms)
+ GET /api/events 200 in 183ms (compile: 42ms, render: 141ms)
+ GET /api/sticky 200 in 188ms (compile: 70ms, render: 117ms)
+ GET /api/focus 200 in 193ms (compile: 88ms, render: 105ms)
+ GET /api/artifacts?type=NOTE 200 in 156ms (compile: 76ms, render: 80ms)
+ GET /api/artifacts?type=TASK 200 in 155ms (compile: 87ms, render: 68ms)
+ GET /api/artifacts?type=LINK 200 in 79ms (compile: 13ms, render: 66ms)
+ GET /api/whiteboards 200 in 83ms (compile: 27ms, render: 56ms)
+ GET /api/videos 200 in 88ms (compile: 40ms, render: 48ms)
+ GET /api/files 200 in 91ms (compile: 53ms, render: 38ms)
+✓ Compiled in 808ms
+✓ Compiled in 709ms
+ GET /api/daily-brief 200 in 154ms (compile: 18ms, render: 136ms)
+ GET /api/events 200 in 202ms (compile: 34ms, render: 168ms)
+ GET /api/sticky 200 in 212ms (compile: 64ms, render: 148ms)
+ GET /api/focus 200 in 139ms (compile: 41ms, render: 98ms)
+ GET /api/artifacts?type=NOTE 200 in 142ms (compile: 62ms, render: 81ms)
+ GET /api/artifacts?type=TASK 200 in 149ms (compile: 79ms, render: 70ms)
+ GET /api/artifacts?type=LINK 200 in 100ms (compile: 22ms, render: 78ms)
+ GET /api/whiteboards 200 in 115ms (compile: 20ms, render: 95ms)
+ GET /api/videos 200 in 121ms (compile: 39ms, render: 82ms)
+ GET /api/files 200 in 82ms (compile: 30ms, render: 52ms)
+✓ Compiled in 405ms
+✓ Compiled in 535ms
+ GET /api/events 200 in 134ms (compile: 40ms, render: 95ms)
+ GET /api/sticky 200 in 142ms (compile: 58ms, render: 84ms)
+ GET /api/focus 200 in 147ms (compile: 82ms, render: 66ms)
+ GET /api/daily-brief 200 in 168ms (compile: 20ms, render: 149ms)
+ GET /api/artifacts?type=NOTE 200 in 172ms (compile: 21ms, render: 150ms)
+ GET /api/artifacts?type=TASK 200 in 177ms (compile: 38ms, render: 139ms)
+ GET /api/artifacts?type=LINK 200 in 182ms (compile: 62ms, render: 119ms)
+ GET /api/whiteboards 200 in 188ms (compile: 97ms, render: 91ms)
+ GET /api/videos 200 in 192ms (compile: 116ms, render: 76ms)
+ GET /workspace?module=notes 200 in 1114ms (compile: 535ms, render: 580ms)
+ GET /api/files 200 in 173ms (compile: 13ms, render: 160ms)
+ GET /workspace?module=notes 200 in 177ms (compile: 36ms, render: 142ms)
+Persisting failed: Unable to write SST file 00000480.sst
+
+Caused by:
+    The system cannot find the path specified. (os error 3)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+✓ Compiled in 564ms
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+✓ Compiled in 576ms
+○ Compiling /_error ...
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+ GET /dashboard 200 in 25.9s (compile: 17.0s, render: 8.9s)
+ GET /workspace?module=quick-capture 200 in 12.1s (compile: 4.9s, render: 7.2s)
+ GET /workspace?module=notes 200 in 12.1s (compile: 5.8s, render: 6.3s)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+ GET /api/sticky 200 in 4.0s (compile: 1778ms, render: 2.2s)
+ GET /api/events 200 in 4.0s (compile: 669ms, render: 3.3s)
+ GET /api/daily-brief 200 in 4.9s (compile: 448ms, render: 4.5s)
+ GET /api/focus 200 in 1766ms (compile: 458ms, render: 1308ms)
+ GET /api/artifacts?type=NOTE 200 in 1770ms (compile: 1260ms, render: 510ms)
+ GET /api/artifacts?type=TASK 200 in 1774ms (compile: 1702ms, render: 72ms)
+ GET /api/artifacts?type=LINK 200 in 2.5s (compile: 10ms, render: 2.5s)
+ GET /api/whiteboards 200 in 2.5s (compile: 397ms, render: 2.1s)
+ GET /api/videos 200 in 2.5s (compile: 1286ms, render: 1252ms)
+ GET /api/files 200 in 835ms (compile: 404ms, render: 431ms)
+ GET /api/daily-brief 200 in 132ms (compile: 14ms, render: 118ms)
+ GET /api/events 200 in 156ms (compile: 44ms, render: 111ms)
+ GET /api/focus 200 in 153ms (compile: 48ms, render: 105ms)
+ GET /api/artifacts?type=NOTE 200 in 159ms (compile: 64ms, render: 95ms)
+ GET /api/sticky 200 in 139ms (compile: 63ms, render: 76ms)
+ GET /api/artifacts?type=TASK 200 in 105ms (compile: 49ms, render: 55ms)
+ GET /api/artifacts?type=LINK 200 in 105ms (compile: 20ms, render: 85ms)
+ GET /api/whiteboards 200 in 111ms (compile: 35ms, render: 76ms)
+ GET /api/videos 200 in 110ms (compile: 51ms, render: 59ms)
+ GET /api/files 200 in 75ms (compile: 30ms, render: 45ms)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+ GET /workspace?module=notes 200 in 453ms (compile: 322ms, render: 131ms)
+ GET /workspace?module=notes 200 in 54ms (compile: 8ms, render: 46ms)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+ GET /workspace?module=notes 200 in 731ms (compile: 38ms, render: 693ms)
+ GET /api/daily-brief 200 in 164ms (compile: 22ms, render: 141ms)
+ GET /api/events 200 in 167ms (compile: 42ms, render: 125ms)
+ GET /api/sticky 200 in 171ms (compile: 59ms, render: 112ms)
+ GET /api/focus 200 in 174ms (compile: 79ms, render: 95ms)
+ GET /api/artifacts?type=NOTE 200 in 179ms (compile: 96ms, render: 83ms)
+ GET /api/artifacts?type=TASK 200 in 181ms (compile: 111ms, render: 70ms)
+ GET /api/artifacts?type=LINK 200 in 82ms (compile: 13ms, render: 69ms)
+ GET /api/whiteboards 200 in 86ms (compile: 26ms, render: 60ms)
+ GET /api/videos 200 in 87ms (compile: 38ms, render: 49ms)
+ GET /api/files 200 in 89ms (compile: 55ms, render: 34ms)
+ GET /workspace?module=dashboard 200 in 102ms (compile: 17ms, render: 85ms)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+ GET /workspace?module=dashboard 200 in 327ms (compile: 29ms, render: 298ms)
+ GET /api/daily-brief 200 in 199ms (compile: 21ms, render: 177ms)
+ GET /api/events 200 in 202ms (compile: 46ms, render: 155ms)
+ GET /api/sticky 200 in 207ms (compile: 68ms, render: 138ms)
+ GET /api/focus 200 in 189ms (compile: 81ms, render: 108ms)
+ GET /api/artifacts?type=NOTE 200 in 194ms (compile: 104ms, render: 90ms)
+ GET /api/artifacts?type=TASK 200 in 156ms (compile: 82ms, render: 74ms)
+ GET /api/artifacts?type=LINK 200 in 112ms (compile: 15ms, render: 97ms)
+ GET /api/whiteboards 200 in 118ms (compile: 34ms, render: 83ms)
+ GET /api/videos 200 in 125ms (compile: 51ms, render: 74ms)
+ GET /api/files 200 in 87ms (compile: 36ms, render: 52ms)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+ GET /api/daily-brief 200 in 94ms (compile: 15ms, render: 80ms)
+ GET /api/events 200 in 224ms (compile: 39ms, render: 184ms)
+ GET /api/sticky 200 in 226ms (compile: 59ms, render: 167ms)
+ GET /api/focus 200 in 208ms (compile: 56ms, render: 152ms)
+ GET /api/artifacts?type=NOTE 200 in 217ms (compile: 97ms, render: 120ms)
+ GET /api/artifacts?type=TASK 200 in 223ms (compile: 135ms, render: 88ms)
+ GET /api/artifacts?type=LINK 200 in 113ms (compile: 45ms, render: 68ms)
+ GET /api/whiteboards 200 in 88ms (compile: 15ms, render: 73ms)
+ GET /api/videos 200 in 102ms (compile: 28ms, render: 74ms)
+ GET /api/files 200 in 73ms (compile: 30ms, render: 43ms)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+ PATCH /api/artifacts/cmmsth1rx0001nticamni602s 200 in 39.4s (compile: 39.3s, render: 157ms)
+ PATCH /api/artifacts/cmmsth1rx0001nticamni602s 200 in 42s (compile: 41s, render: 183ms)
+ GET /api/daily-brief 200 in 205ms (compile: 28ms, render: 177ms)
+ GET /api/events 200 in 208ms (compile: 47ms, render: 162ms)
+ GET /api/sticky 200 in 216ms (compile: 76ms, render: 140ms)
+ GET /api/artifacts?type=TASK 200 in 145ms (compile: 39ms, render: 106ms)
+ GET /api/focus 200 in 147ms (compile: 58ms, render: 89ms)
+ GET /api/artifacts?type=NOTE 200 in 151ms (compile: 79ms, render: 72ms)
+ GET /api/artifacts?type=LINK 200 in 158ms (compile: 17ms, render: 140ms)
+ GET /api/whiteboards 200 in 173ms (compile: 39ms, render: 134ms)
+ GET /api/videos 200 in 178ms (compile: 55ms, render: 123ms)
+ GET /api/files 200 in 185ms (compile: 73ms, render: 112ms)
+ GET /api/daily-brief 200 in 195ms (compile: 87ms, render: 108ms)
+ GET /api/events 200 in 144ms (compile: 50ms, render: 94ms)
+ GET /api/sticky 200 in 163ms (compile: 18ms, render: 145ms)
+ GET /api/artifacts?type=TASK 200 in 185ms (compile: 37ms, render: 148ms)
+ GET /api/focus 200 in 189ms (compile: 56ms, render: 134ms)
+ GET /api/artifacts?type=NOTE 200 in 195ms (compile: 78ms, render: 117ms)
+ GET /api/artifacts?type=LINK 200 in 119ms (compile: 24ms, render: 95ms)
+ GET /api/whiteboards 200 in 125ms (compile: 42ms, render: 84ms)
+ GET /api/videos 200 in 56ms (compile: 11ms, render: 45ms)
+ GET /api/files 200 in 61ms (compile: 30ms, render: 32ms)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+ GET /api/events 200 in 147ms (compile: 26ms, render: 120ms)
+ GET /api/sticky 200 in 149ms (compile: 48ms, render: 102ms)
+ GET /api/focus 200 in 146ms (compile: 84ms, render: 63ms)
+ GET /api/whiteboards 200 in 63ms (compile: 15ms, render: 48ms)
+ GET /api/videos 200 in 68ms (compile: 33ms, render: 35ms)
+ GET /api/files 200 in 34ms (compile: 8ms, render: 26ms)
+prisma:error 
+Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["prisma"].artifact.findMany()` invocation in
+C:\Users\disha\OneDrive\Desktop\hackathon\.next\dev\server\chunks\[root-of-the-server]__53c0a285._.js:199:147
+
+  196     },
+  197     take: 10
+  198 }),
+→ 199 __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["prisma"].artifact.findMany({
+        where: {
+          userId: "cmmamv0v60002ntwgh0n86ufc",
+          type: "TASK",
+          status: {
+          ~~~~~~
+            not: "COMPLETED"
+          },
+          dueAt: {
+            lt: new Date("2026-03-16T13:35:06.398Z")
+          },
+      ?   AND?: ArtifactWhereInput | ArtifactWhereInput[],
+      ?   OR?: ArtifactWhereInput[],
+      ?   NOT?: ArtifactWhereInput | ArtifactWhereInput[],
+      ?   id?: StringFilter | String,
+      ?   projectId?: StringNullableFilter | String | Null,
+      ?   title?: StringFilter | String,
+      ?   content?: StringFilter | String,
+      ?   source?: StringNullableFilter | String | Null,
+      ?   contextKey?: StringNullableFilter | String | Null,
+      ?   occurredAt?: DateTimeNullableFilter | DateTime | Null,
+      ?   isDone?: BoolFilter | Boolean,
+      ?   createdAt?: DateTimeFilter | DateTime,
+      ?   updatedAt?: DateTimeFilter | DateTime,
+      ?   project?: ProjectNullableScalarRelationFilter | ProjectWhereInput | Null,
+      ?   user?: UserProfileScalarRelationFilter | UserProfileWhereInput
+        },
+        orderBy: {
+          dueAt: "asc"
+        },
+        take: 8
+      })
+
+Unknown argument `status`. Available options are marked with ?.
+ GET /api/daily-brief 500 in 12.4s (compile: 6.3s, render: 6.1s)
+prisma:error 
+Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["prisma"].artifact.findMany()` invocation in
+C:\Users\disha\OneDrive\Desktop\hackathon\.next\dev\server\chunks\[root-of-the-server]__53c0a285._.js:182:147
+
+  179         startAt: "asc"
+  180     }
+  181 }),
+→ 182 __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["prisma"].artifact.findMany({
+        where: {
+          userId: "cmmamv0v60002ntwgh0n86ufc",
+          type: "TASK",
+          status: {
+          ~~~~~~
+            not: "COMPLETED"
+          },
+          dueAt: {
+            gte: new Date("2026-03-15T18:30:00.000Z"),
+            lt: new Date("2026-03-16T18:30:00.000Z")
+          },
+      ?   AND?: ArtifactWhereInput | ArtifactWhereInput[],
+      ?   OR?: ArtifactWhereInput[],
+      ?   NOT?: ArtifactWhereInput | ArtifactWhereInput[],
+      ?   id?: StringFilter | String,
+      ?   projectId?: StringNullableFilter | String | Null,
+      ?   title?: StringFilter | String,
+      ?   content?: StringFilter | String,
+      ?   source?: StringNullableFilter | String | Null,
+      ?   contextKey?: StringNullableFilter | String | Null,
+      ?   occurredAt?: DateTimeNullableFilter | DateTime | Null,
+      ?   isDone?: BoolFilter | Boolean,
+      ?   createdAt?: DateTimeFilter | DateTime,
+      ?   updatedAt?: DateTimeFilter | DateTime,
+      ?   project?: ProjectNullableScalarRelationFilter | ProjectWhereInput | Null,
+      ?   user?: UserProfileScalarRelationFilter | UserProfileWhereInput
+        },
+        orderBy: {
+          dueAt: "asc"
+        },
+        take: 10
+      })
+
+Unknown argument `status`. Available options are marked with ?.
+ GET /api/artifacts?type=TASK 500 in 29.0s
+ GET /api/artifacts?type=LINK 500 in 28.9s
+ GET /api/artifacts?type=NOTE 500 in 29.0s
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+prisma:error 
+Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["prisma"].artifact.findMany()` invocation in
+C:\Users\disha\OneDrive\Desktop\hackathon\.next\dev\server\chunks\[root-of-the-server]__53c0a285._.js:182:147
+
+  179         startAt: "asc"
+  180     }
+  181 }),
+→ 182 __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["prisma"].artifact.findMany({
+        where: {
+          userId: "cmmamv0v60002ntwgh0n86ufc",
+          type: "TASK",
+          status: {
+          ~~~~~~
+            not: "COMPLETED"
+          },
+          dueAt: {
+            gte: new Date("2026-03-15T18:30:00.000Z"),
+            lt: new Date("2026-03-16T18:30:00.000Z")
+          },
+      ?   AND?: ArtifactWhereInput | ArtifactWhereInput[],
+      ?   OR?: ArtifactWhereInput[],
+      ?   NOT?: ArtifactWhereInput | ArtifactWhereInput[],
+      ?   id?: StringFilter | String,
+      ?   projectId?: StringNullableFilter | String | Null,
+      ?   title?: StringFilter | String,
+      ?   content?: StringFilter | String,
+      ?   source?: StringNullableFilter | String | Null,
+      ?   contextKey?: StringNullableFilter | String | Null,
+      ?   occurredAt?: DateTimeNullableFilter | DateTime | Null,
+      ?   isDone?: BoolFilter | Boolean,
+      ?   createdAt?: DateTimeFilter | DateTime,
+      ?   updatedAt?: DateTimeFilter | DateTime,
+      ?   project?: ProjectNullableScalarRelationFilter | ProjectWhereInput | Null,
+      ?   user?: UserProfileScalarRelationFilter | UserProfileWhereInput
+        },
+        orderBy: {
+          dueAt: "asc"
+        },
+        take: 10
+      })
+
+Unknown argument `status`. Available options are marked with ?.
+ GET /api/daily-brief 500 in 734ms (compile: 44ms, render: 690ms)
+prisma:error 
+Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["prisma"].artifact.findMany()` invocation in
+C:\Users\disha\OneDrive\Desktop\hackathon\.next\dev\server\chunks\[root-of-the-server]__53c0a285._.js:199:147
+
+  196     },
+  197     take: 10
+  198 }),
+→ 199 __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["prisma"].artifact.findMany({
+        where: {
+          userId: "cmmamv0v60002ntwgh0n86ufc",
+          type: "TASK",
+          status: {
+          ~~~~~~
+            not: "COMPLETED"
+          },
+          dueAt: {
+            lt: new Date("2026-03-16T13:36:46.952Z")
+          },
+      ?   AND?: ArtifactWhereInput | ArtifactWhereInput[],
+      ?   OR?: ArtifactWhereInput[],
+      ?   NOT?: ArtifactWhereInput | ArtifactWhereInput[],
+      ?   id?: StringFilter | String,
+      ?   projectId?: StringNullableFilter | String | Null,
+      ?   title?: StringFilter | String,
+      ?   content?: StringFilter | String,
+      ?   source?: StringNullableFilter | String | Null,
+      ?   contextKey?: StringNullableFilter | String | Null,
+      ?   occurredAt?: DateTimeNullableFilter | DateTime | Null,
+      ?   isDone?: BoolFilter | Boolean,
+      ?   createdAt?: DateTimeFilter | DateTime,
+      ?   updatedAt?: DateTimeFilter | DateTime,
+      ?   project?: ProjectNullableScalarRelationFilter | ProjectWhereInput | Null,
+      ?   user?: UserProfileScalarRelationFilter | UserProfileWhereInput
+        },
+        orderBy: {
+          dueAt: "asc"
+        },
+        take: 8
+      })
+
+Unknown argument `status`. Available options are marked with ?.
+ GET /api/events 200 in 1120ms (compile: 65ms, render: 1054ms)
+ GET /api/sticky 200 in 1028ms (compile: 798ms, render: 230ms)
+ GET /api/focus 200 in 1034ms (compile: 815ms, render: 219ms)
+ GET /api/whiteboards 200 in 282ms (compile: 226ms, render: 56ms)
+ GET /api/videos 200 in 54ms (compile: 12ms, render: 42ms)
+ GET /api/files 200 in 62ms (compile: 26ms, render: 37ms)
+prisma:error 
+Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["prisma"].artifact.findMany()` invocation in
+C:\Users\disha\OneDrive\Desktop\hackathon\.next\dev\server\chunks\[root-of-the-server]__53c0a285._.js:182:147
+
+  179         startAt: "asc"
+  180     }
+  181 }),
+→ 182 __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["prisma"].artifact.findMany({
+        where: {
+          userId: "cmmamv0v60002ntwgh0n86ufc",
+          type: "TASK",
+          status: {
+          ~~~~~~
+            not: "COMPLETED"
+          },
+          dueAt: {
+            gte: new Date("2026-03-15T18:30:00.000Z"),
+            lt: new Date("2026-03-16T18:30:00.000Z")
+          },
+      ?   AND?: ArtifactWhereInput | ArtifactWhereInput[],
+      ?   OR?: ArtifactWhereInput[],
+      ?   NOT?: ArtifactWhereInput | ArtifactWhereInput[],
+      ?   id?: StringFilter | String,
+      ?   projectId?: StringNullableFilter | String | Null,
+      ?   title?: StringFilter | String,
+      ?   content?: StringFilter | String,
+      ?   source?: StringNullableFilter | String | Null,
+      ?   contextKey?: StringNullableFilter | String | Null,
+      ?   occurredAt?: DateTimeNullableFilter | DateTime | Null,
+      ?   isDone?: BoolFilter | Boolean,
+      ?   createdAt?: DateTimeFilter | DateTime,
+      ?   updatedAt?: DateTimeFilter | DateTime,
+      ?   project?: ProjectNullableScalarRelationFilter | ProjectWhereInput | Null,
+      ?   user?: UserProfileScalarRelationFilter | UserProfileWhereInput
+        },
+        orderBy: {
+          dueAt: "asc"
+        },
+        take: 10
+      })
+
+Unknown argument `status`. Available options are marked with ?.
+ GET /api/daily-brief 500 in 558ms (compile: 14ms, render: 544ms)
+prisma:error 
+Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["prisma"].artifact.findMany()` invocation in
+C:\Users\disha\OneDrive\Desktop\hackathon\.next\dev\server\chunks\[root-of-the-server]__53c0a285._.js:199:147
+
+  196     },
+  197     take: 10
+  198 }),
+→ 199 __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["prisma"].artifact.findMany({
+        where: {
+          userId: "cmmamv0v60002ntwgh0n86ufc",
+          type: "TASK",
+          status: {
+          ~~~~~~
+            not: "COMPLETED"
+          },
+          dueAt: {
+            lt: new Date("2026-03-16T13:37:40.285Z")
+          },
+      ?   AND?: ArtifactWhereInput | ArtifactWhereInput[],
+      ?   OR?: ArtifactWhereInput[],
+      ?   NOT?: ArtifactWhereInput | ArtifactWhereInput[],
+      ?   id?: StringFilter | String,
+      ?   projectId?: StringNullableFilter | String | Null,
+      ?   title?: StringFilter | String,
+      ?   content?: StringFilter | String,
+      ?   source?: StringNullableFilter | String | Null,
+      ?   contextKey?: StringNullableFilter | String | Null,
+      ?   occurredAt?: DateTimeNullableFilter | DateTime | Null,
+      ?   isDone?: BoolFilter | Boolean,
+      ?   createdAt?: DateTimeFilter | DateTime,
+      ?   updatedAt?: DateTimeFilter | DateTime,
+      ?   project?: ProjectNullableScalarRelationFilter | ProjectWhereInput | Null,
+      ?   user?: UserProfileScalarRelationFilter | UserProfileWhereInput
+        },
+        orderBy: {
+          dueAt: "asc"
+        },
+        take: 8
+      })
+
+Unknown argument `status`. Available options are marked with ?.
+ GET /api/events 200 in 555ms (compile: 25ms, render: 529ms)
+ GET /api/sticky 200 in 563ms (compile: 46ms, render: 516ms)
+ GET /api/focus 200 in 99ms (compile: 12ms, render: 87ms)
+ GET /api/whiteboards 200 in 95ms (compile: 15ms, render: 80ms)
+ GET /api/videos 200 in 100ms (compile: 50ms, render: 51ms)
+ GET /api/files 200 in 43ms (compile: 13ms, render: 30ms)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
