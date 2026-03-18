@@ -3,16 +3,26 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Mail } from "lucide-react";
+import { ArrowLeft, KeyRound, Mail } from "lucide-react";
 import { AppSurface } from "@/components/app-surface";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteNav } from "@/components/site-nav";
 import { createSupabaseBrowserClient } from "@/lib/supabase-client";
 
+function humanizeAuthError(message: string, fallback: string) {
+  const normalized = (message || fallback).toLowerCase();
+  if (normalized.includes("rate limit")) return "Too many login emails were requested. Wait a few minutes and try again.";
+  if (normalized.includes("invalid")) return "This email address looks invalid.";
+  if (normalized.includes("fetch")) return "Could not reach auth service right now.";
+  return message || fallback;
+}
+
 export default function AuthPage() {
   const router = useRouter();
   const [mode, setMode] = useState<"login" | "signup">("login");
+  const [step, setStep] = useState<"form" | "check-email" | "code">("form");
   const [email, setEmail] = useState("");
+  const [otpCode, setOtpCode] = useState("");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -34,7 +44,12 @@ export default function AuthPage() {
     setTimeout(() => router.push("/dashboard"), 400);
   }
 
-  async function sendMagicLink() {
+  function resetFeedback() {
+    setMessage("");
+    setErrorMessage("");
+  }
+
+  async function requestEmailAuth(kind: "magic-link" | "otp-code") {
     const cleanEmail = email.trim().toLowerCase();
     if (!cleanEmail) {
       setErrorMessage("Enter a valid email address.");
@@ -42,8 +57,7 @@ export default function AuthPage() {
     }
 
     setBusy(true);
-    setMessage("");
-    setErrorMessage("");
+    resetFeedback();
 
     try {
       if (!supabase) {
@@ -54,7 +68,10 @@ export default function AuthPage() {
       const { error } = await supabase.auth.signInWithOtp({
         email: cleanEmail,
         options: {
-          emailRedirectTo: typeof window !== "undefined" ? `${window.location.origin}/auth/callback?next=/dashboard` : undefined,
+          emailRedirectTo:
+            kind === "magic-link" && typeof window !== "undefined"
+              ? `${window.location.origin}/auth/callback?next=/dashboard`
+              : undefined,
           shouldCreateUser: mode === "signup",
         },
       });
@@ -63,7 +80,13 @@ export default function AuthPage() {
         throw error;
       }
 
-      setMessage("Magic link sent. Check your email inbox.");
+      if (kind === "magic-link") {
+        setMessage("Magic link sent. Check your email inbox.");
+        setStep("check-email");
+      } else {
+        setMessage("Verification code sent. Check your email and enter the code.");
+        setStep("code");
+      }
     } catch (error) {
       const fallback = mode === "login" ? "Unable to send login link." : "Unable to create account via email link.";
       const detail = error instanceof Error ? error.message : fallback;
@@ -74,7 +97,80 @@ export default function AuthPage() {
         return;
       }
 
-      setErrorMessage(detail || fallback);
+      setErrorMessage(humanizeAuthError(detail, fallback));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function sendMagicLink() {
+    await requestEmailAuth("magic-link");
+  }
+
+  async function sendOtpCode() {
+    await requestEmailAuth("otp-code");
+  }
+
+  async function verifyOtpCode() {
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanCode = otpCode.trim();
+    if (!cleanEmail || !cleanCode) {
+      setErrorMessage("Enter the email and verification code.");
+      return;
+    }
+
+    setBusy(true);
+    resetFeedback();
+    try {
+      if (!supabase) {
+        continueLocally(cleanEmail);
+        return;
+      }
+
+      const { error } = await supabase.auth.verifyOtp({
+        email: cleanEmail,
+        token: cleanCode,
+        type: mode === "signup" ? "signup" : "email",
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      setMessage("Verification successful. Redirecting...");
+      router.push("/dashboard");
+    } catch (error) {
+      const fallback = "Unable to verify code.";
+      const detail = error instanceof Error ? error.message : fallback;
+      setErrorMessage(humanizeAuthError(detail, fallback));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function signInWithGoogle() {
+    setBusy(true);
+    resetFeedback();
+    try {
+      if (!supabase) {
+        continueLocally(email.trim().toLowerCase() || "google-demo@local", "Google auth is not configured locally. Continued in demo mode.");
+        return;
+      }
+
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: typeof window !== "undefined" ? `${window.location.origin}/auth/callback?next=/dashboard` : undefined,
+        },
+      });
+
+      if (error) {
+        throw error;
+      }
+    } catch (error) {
+      const fallback = "Unable to start Google sign-in.";
+      const detail = error instanceof Error ? error.message : fallback;
+      setErrorMessage(humanizeAuthError(detail, fallback));
     } finally {
       setBusy(false);
     }
@@ -93,23 +189,76 @@ export default function AuthPage() {
           </header>
 
           <section className="panel p-6">
-            <div className="mb-4 grid grid-cols-2 gap-2">
-              <button className={`btn-secondary px-3 py-2 text-sm ${mode === "login" ? "ring-1 ring-cyan-300/60" : ""}`} onClick={() => setMode("login")}>
-                Login
-              </button>
-              <button className={`btn-secondary px-3 py-2 text-sm ${mode === "signup" ? "ring-1 ring-cyan-300/60" : ""}`} onClick={() => setMode("signup")}>
-                Sign Up
-              </button>
-            </div>
+            {step === "form" ? (
+              <>
+                <div className="mb-4 grid grid-cols-2 gap-2">
+                  <button className={`btn-secondary px-3 py-2 text-sm ${mode === "login" ? "ring-1 ring-cyan-300/60" : ""}`} onClick={() => setMode("login")}>
+                    Login
+                  </button>
+                  <button className={`btn-secondary px-3 py-2 text-sm ${mode === "signup" ? "ring-1 ring-cyan-300/60" : ""}`} onClick={() => setMode("signup")}>
+                    Sign Up
+                  </button>
+                </div>
 
-            <label className="mb-2 block text-xs uppercase tracking-[0.16em] text-cyan-500">
-              {mode === "login" ? "Login email" : "Sign up email"}
-            </label>
-            <input className="input" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} />
+                <label className="mb-2 block text-xs uppercase tracking-[0.16em] text-cyan-500">
+                  {mode === "login" ? "Login email" : "Sign up email"}
+                </label>
+                <input className="input" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} />
 
-            <button disabled={busy || !email.trim()} className="btn-primary mt-4 inline-flex w-full items-center justify-center gap-2 px-4 py-2 text-sm disabled:opacity-40" onClick={sendMagicLink}>
-              <Mail className="h-4 w-4" /> {mode === "login" ? "Send Login Link" : "Create Account via Email Link"}
-            </button>
+                <div className="mt-4 grid gap-2">
+                  <button disabled={busy || !email.trim()} className="btn-primary inline-flex w-full items-center justify-center gap-2 px-4 py-2 text-sm disabled:opacity-40" onClick={sendMagicLink}>
+                    <Mail className="h-4 w-4" /> {mode === "login" ? "Send Login Link" : "Create Account via Email Link"}
+                  </button>
+                  <button disabled={busy || !email.trim()} className="btn-secondary inline-flex w-full items-center justify-center gap-2 px-4 py-2 text-sm disabled:opacity-40" onClick={sendOtpCode}>
+                    <KeyRound className="h-4 w-4" /> Send Verification Code
+                  </button>
+                  <button disabled={busy} className="btn-secondary inline-flex w-full items-center justify-center gap-2 px-4 py-2 text-sm disabled:opacity-40" onClick={signInWithGoogle}>
+                    <span className="font-semibold">G</span> Continue with Google
+                  </button>
+                </div>
+              </>
+            ) : null}
+
+            {step === "check-email" ? (
+              <div className="space-y-4">
+                <p className="text-sm text-slate-600">Check your inbox for the login link sent to <span className="font-semibold">{email}</span>.</p>
+                <div className="grid gap-2">
+                  <button className="btn-primary inline-flex w-full items-center justify-center gap-2 px-4 py-2 text-sm" onClick={sendMagicLink} disabled={busy}>
+                    <Mail className="h-4 w-4" /> Resend Login Link
+                  </button>
+                  <button className="btn-secondary inline-flex w-full items-center justify-center gap-2 px-4 py-2 text-sm" onClick={() => setStep("code")}>
+                    <KeyRound className="h-4 w-4" /> Enter Verification Code Instead
+                  </button>
+                  <button className="btn-secondary inline-flex w-full items-center justify-center gap-2 px-4 py-2 text-sm" onClick={() => { setStep("form"); resetFeedback(); }}>
+                    <ArrowLeft className="h-4 w-4" /> Back
+                  </button>
+                </div>
+              </div>
+            ) : null}
+
+            {step === "code" ? (
+              <div className="space-y-4">
+                <div>
+                  <label className="mb-2 block text-xs uppercase tracking-[0.16em] text-cyan-500">Email</label>
+                  <input className="input" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} />
+                </div>
+                <div>
+                  <label className="mb-2 block text-xs uppercase tracking-[0.16em] text-cyan-500">Verification code</label>
+                  <input className="input" placeholder="123456" value={otpCode} onChange={(e) => setOtpCode(e.target.value)} />
+                </div>
+                <div className="grid gap-2">
+                  <button disabled={busy || !email.trim() || !otpCode.trim()} className="btn-primary inline-flex w-full items-center justify-center gap-2 px-4 py-2 text-sm disabled:opacity-40" onClick={verifyOtpCode}>
+                    <KeyRound className="h-4 w-4" /> Verify Code
+                  </button>
+                  <button className="btn-secondary inline-flex w-full items-center justify-center gap-2 px-4 py-2 text-sm" onClick={sendOtpCode} disabled={busy || !email.trim()}>
+                    <Mail className="h-4 w-4" /> Resend Code
+                  </button>
+                  <button className="btn-secondary inline-flex w-full items-center justify-center gap-2 px-4 py-2 text-sm" onClick={() => { setStep("form"); resetFeedback(); }}>
+                    <ArrowLeft className="h-4 w-4" /> Back
+                  </button>
+                </div>
+              </div>
+            ) : null}
 
             {demoMode ? (
               <p className="mt-3 text-xs text-cyan-600">

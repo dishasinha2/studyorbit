@@ -15,19 +15,29 @@ type AuthPanelProps = {
 export function AuthPanel({ ready, loggedIn, email, demoMode, onRefresh }: AuthPanelProps) {
   const [emailInput, setEmailInput] = useState("");
   const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState("");
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
 
   async function signInMagicLink() {
     if (!supabase || !emailInput) return;
     setBusy(true);
     try {
-      await supabase.auth.signInWithOtp({
+      const { error } = await supabase.auth.signInWithOtp({
         email: emailInput,
         options: {
           emailRedirectTo: typeof window !== "undefined" ? `${window.location.origin}/auth/callback?next=/workspace` : undefined,
         },
       });
-      alert("Magic link sent. Check your email.");
+      if (error) {
+        const normalized = error.message.toLowerCase();
+        if (normalized.includes("rate limit")) {
+          setMessage("Too many login emails were requested. Wait a few minutes and try again.");
+          return;
+        }
+        setMessage(error.message);
+        return;
+      }
+      setMessage("Magic link sent. Check your email.");
     } finally {
       setBusy(false);
     }
@@ -97,6 +107,7 @@ export function AuthPanel({ ready, loggedIn, email, demoMode, onRefresh }: AuthP
           Send link
         </button>
       </div>
+      {message ? <p className="text-xs text-slate-500">{message}</p> : null}
     </div>
   );
 }

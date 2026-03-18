@@ -8,6 +8,14 @@ import { SiteFooter } from "@/components/site-footer";
 import { SiteNav } from "@/components/site-nav";
 import { createSupabaseBrowserClient } from "@/lib/supabase-client";
 
+function humanizeAuthError(message: string) {
+  const normalized = message.toLowerCase();
+  if (normalized.includes("expired")) return "This login link expired. Request a new one.";
+  if (normalized.includes("rate limit")) return "Too many login emails were requested. Wait a few minutes and try again.";
+  if (normalized.includes("invalid")) return "This login link is invalid. Request a new one.";
+  return message;
+}
+
 function AuthCallbackContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -24,22 +32,53 @@ function AuthCallbackContent() {
       }
 
       const code = searchParams.get("code");
+      const tokenHash = searchParams.get("token_hash");
+      const type = searchParams.get("type");
       const next = searchParams.get("next") || "/dashboard";
+      const urlError = searchParams.get("error_description") || searchParams.get("error");
 
-      if (!code) {
-        setErrorMessage("Missing auth code. Try the login link again.");
+      if (urlError) {
+        setErrorMessage(humanizeAuthError(urlError.replace(/\+/g, " ")));
         return;
       }
 
-      const { error } = await supabase.auth.exchangeCodeForSession(code);
+      const { data: sessionData } = await supabase.auth.getSession();
       if (!alive) return;
-
-      if (error) {
-        setErrorMessage(error.message || "Unable to complete login.");
+      if (sessionData.session) {
+        router.replace(next);
         return;
       }
 
-      router.replace(next);
+      if (code) {
+        const { error } = await supabase.auth.exchangeCodeForSession(code);
+        if (!alive) return;
+
+        if (error) {
+          setErrorMessage(humanizeAuthError(error.message || "Unable to complete login."));
+          return;
+        }
+
+        router.replace(next);
+        return;
+      }
+
+      if (tokenHash && type) {
+        const { error } = await supabase.auth.verifyOtp({
+          token_hash: tokenHash,
+          type: type as "magiclink" | "signup" | "invite" | "recovery" | "email_change" | "email",
+        });
+        if (!alive) return;
+
+        if (error) {
+          setErrorMessage(humanizeAuthError(error.message || "Unable to verify login link."));
+          return;
+        }
+
+        router.replace(next);
+        return;
+      }
+
+      setErrorMessage("This sign-in link is incomplete. Request a new login email.");
     }
 
     void run();
