@@ -18,6 +18,14 @@ function humanizeAuthError(message: string, fallback: string) {
   return message || fallback;
 }
 
+function redirectNow(router: ReturnType<typeof useRouter>, href: string) {
+  if (typeof window !== "undefined") {
+    window.location.assign(href);
+    return;
+  }
+  router.replace(href);
+}
+
 function AuthContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -44,7 +52,7 @@ function AuthContent() {
       const { data } = await supabase.auth.getSession();
       if (!active || !data.session) return;
       persistBrowserSession(data.session.access_token, data.session.refresh_token);
-      router.replace(nextHref);
+      redirectNow(router, nextHref);
     }
     void checkExistingSession();
     return () => {
@@ -126,7 +134,7 @@ function AuthContent() {
       }
 
       setMessage("Verification successful. Redirecting...");
-      router.replace(nextHref);
+      redirectNow(router, nextHref);
     } catch (error) {
       const fallback = "Unable to verify code.";
       const detail = error instanceof Error ? error.message : fallback;

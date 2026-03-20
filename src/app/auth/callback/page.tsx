@@ -17,6 +17,14 @@ function humanizeAuthError(message: string) {
   return message;
 }
 
+function redirectNow(router: ReturnType<typeof useRouter>, href: string) {
+  if (typeof window !== "undefined") {
+    window.location.assign(href);
+    return;
+  }
+  router.replace(href);
+}
+
 function AuthCallbackContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -47,7 +55,7 @@ function AuthCallbackContent() {
       if (!alive) return;
       if (sessionData.session) {
         persistBrowserSession(sessionData.session.access_token, sessionData.session.refresh_token);
-        router.replace(next);
+        redirectNow(router, next);
         return;
       }
 
@@ -69,7 +77,7 @@ function AuthCallbackContent() {
           }
 
           persistBrowserSession(accessToken, refreshToken);
-          router.replace(next);
+          redirectNow(router, next);
           return;
         }
       }
@@ -87,7 +95,7 @@ function AuthCallbackContent() {
         if (nextSession.session) {
           persistBrowserSession(nextSession.session.access_token, nextSession.session.refresh_token);
         }
-        router.replace(next);
+        redirectNow(router, next);
         return;
       }
 
@@ -107,7 +115,7 @@ function AuthCallbackContent() {
         if (nextSession.session) {
           persistBrowserSession(nextSession.session.access_token, nextSession.session.refresh_token);
         }
-        router.replace(next);
+        redirectNow(router, next);
         return;
       }
 
