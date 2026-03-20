@@ -1,7 +1,9 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { LogOut, Mail } from "lucide-react";
+import { clearBrowserSession } from "@/lib/auth-cookie";
 import { createSupabaseBrowserClient } from "@/lib/supabase-client";
 
 type AuthPanelProps = {
@@ -13,6 +15,7 @@ type AuthPanelProps = {
 };
 
 export function AuthPanel({ ready, loggedIn, email, demoMode, onRefresh }: AuthPanelProps) {
+  const router = useRouter();
   const [emailInput, setEmailInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
@@ -48,7 +51,9 @@ export function AuthPanel({ ready, loggedIn, email, demoMode, onRefresh }: AuthP
     setBusy(true);
     try {
       await supabase.auth.signOut();
+      clearBrowserSession();
       await onRefresh();
+      router.replace("/auth");
     } finally {
       setBusy(false);
     }
@@ -59,14 +64,7 @@ export function AuthPanel({ ready, loggedIn, email, demoMode, onRefresh }: AuthP
   }
 
   if (demoMode) {
-    return (
-      <div className="panel flex items-center justify-between gap-4 p-4">
-        <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-cyan-500">Guest mode active</p>
-          <p className="text-sm text-slate-500">Local mode enabled. Add Supabase keys for team login.</p>
-        </div>
-      </div>
-    );
+    return <div className="panel p-4 text-sm text-rose-500">Supabase auth is required. Configure auth keys to continue.</div>;
   }
 
   if (loggedIn) {

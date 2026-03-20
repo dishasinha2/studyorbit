@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
 import { AnimatePresence, motion, type PanInfo } from "framer-motion";
 import { AlarmClock, AlertTriangle, CalendarCheck, CheckCircle2, ChevronDown, ChevronRight, Clock3, Command, Expand, ExternalLink, FileStack, FolderOpen, Highlighter, Layers3, Lightbulb, Link2, Lock, PenSquare, Pin, Plus, Search, Timer, Trash2, Underline, UserCircle2, Youtube, Zap } from "lucide-react";
+import { clearBrowserSession, persistBrowserSession } from "@/lib/auth-cookie";
 import { createSupabaseBrowserClient } from "@/lib/supabase-client";
 import { AuthPanel } from "@/components/auth-panel";
 import type { Artifact, FileItem, FocusSession, PlannerEvent, StickyNote, VideoBookmark, Whiteboard } from "@/lib/types";
@@ -518,15 +519,17 @@ export function WorkspaceShell({ activeModule = "all", onCountsChange }: Workspa
     }
     const { data } = await supabase.auth.getSession();
     if (data.session?.access_token) {
+      persistBrowserSession(data.session.access_token, data.session.refresh_token);
       setDemoMode(false);
       setDemoUserId(null);
       setToken(data.session.access_token);
       setEmail(data.session.user?.email);
     } else {
-      setDemoMode(true);
-      setDemoUserId(createDemoUserId());
+      clearBrowserSession();
+      setDemoMode(false);
+      setDemoUserId(null);
       setToken(null);
-      setEmail(readDemoEmail());
+      setEmail(undefined);
     }
     setReady(true);
   }, [supabase]);
@@ -637,15 +640,17 @@ export function WorkspaceShell({ activeModule = "all", onCountsChange }: Workspa
     if (!supabase) return;
     const { data } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.access_token) {
+        persistBrowserSession(session.access_token, session.refresh_token);
         setDemoMode(false);
         setDemoUserId(null);
         setToken(session.access_token);
         setEmail(session.user?.email);
       } else {
-        setDemoMode(true);
-        setDemoUserId(createDemoUserId());
+        clearBrowserSession();
+        setDemoMode(false);
+        setDemoUserId(null);
         setToken(null);
-        setEmail(readDemoEmail());
+        setEmail(undefined);
       }
     });
     return () => data.subscription.unsubscribe();

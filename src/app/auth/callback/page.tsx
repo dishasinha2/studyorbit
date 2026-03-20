@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { AppSurface } from "@/components/app-surface";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteNav } from "@/components/site-nav";
+import { persistBrowserSession } from "@/lib/auth-cookie";
 import { createSupabaseBrowserClient } from "@/lib/supabase-client";
 
 function humanizeAuthError(message: string) {
@@ -27,7 +28,7 @@ function AuthCallbackContent() {
 
     async function run() {
       if (!supabase) {
-        router.replace("/dashboard");
+        router.replace("/auth");
         return;
       }
 
@@ -45,6 +46,7 @@ function AuthCallbackContent() {
       const { data: sessionData } = await supabase.auth.getSession();
       if (!alive) return;
       if (sessionData.session) {
+        persistBrowserSession(sessionData.session.access_token, sessionData.session.refresh_token);
         router.replace(next);
         return;
       }
@@ -66,6 +68,7 @@ function AuthCallbackContent() {
             return;
           }
 
+          persistBrowserSession(accessToken, refreshToken);
           router.replace(next);
           return;
         }
@@ -80,6 +83,10 @@ function AuthCallbackContent() {
           return;
         }
 
+        const { data: nextSession } = await supabase.auth.getSession();
+        if (nextSession.session) {
+          persistBrowserSession(nextSession.session.access_token, nextSession.session.refresh_token);
+        }
         router.replace(next);
         return;
       }
@@ -96,6 +103,10 @@ function AuthCallbackContent() {
           return;
         }
 
+        const { data: nextSession } = await supabase.auth.getSession();
+        if (nextSession.session) {
+          persistBrowserSession(nextSession.session.access_token, nextSession.session.refresh_token);
+        }
         router.replace(next);
         return;
       }
