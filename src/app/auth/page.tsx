@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Mail } from "lucide-react";
+import { ArrowLeft, KeyRound, Mail } from "lucide-react";
 import { AppSurface } from "@/components/app-surface";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteNav } from "@/components/site-nav";
@@ -22,8 +22,9 @@ function AuthContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [mode, setMode] = useState<"login" | "signup">("login");
-  const [step, setStep] = useState<"form" | "check-email">("form");
+  const [step, setStep] = useState<"form" | "code">("form");
   const [email, setEmail] = useState("");
+  const [otpCode, setOtpCode] = useState("");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -51,7 +52,7 @@ function AuthContent() {
     };
   }, [supabase, router, nextHref]);
 
-  async function requestEmailAuth() {
+  async function requestOtpCode() {
     const cleanEmail = email.trim().toLowerCase();
     if (!cleanEmail) {
       setErrorMessage("Enter a valid email address.");
@@ -70,7 +71,6 @@ function AuthContent() {
       const { error } = await supabase.auth.signInWithOtp({
         email: cleanEmail,
         options: {
-          emailRedirectTo: typeof window !== "undefined" ? `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextHref)}` : undefined,
           shouldCreateUser: mode === "signup",
         },
       });
@@ -79,21 +79,61 @@ function AuthContent() {
         throw error;
       }
 
-      setMessage("Magic link sent. Check your email inbox.");
-      setStep("check-email");
+      setMessage("Verification code sent. Check your email and enter the code.");
+      setStep("code");
     } catch (error) {
-      const fallback = mode === "login" ? "Unable to send login link." : "Unable to create account via email link.";
+      const fallback = mode === "login" ? "Unable to send verification code." : "Unable to create account with email code.";
       const detail = error instanceof Error ? error.message : fallback;
-      const normalized = (detail || fallback).toLowerCase();
-
       setErrorMessage(humanizeAuthError(detail, fallback));
     } finally {
       setBusy(false);
     }
   }
 
-  async function sendMagicLink() {
-    await requestEmailAuth();
+  async function sendOtpCode() {
+    await requestOtpCode();
+  }
+
+  async function verifyOtpCode() {
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanCode = otpCode.trim();
+    if (!cleanEmail || !cleanCode) {
+      setErrorMessage("Enter the email and verification code.");
+      return;
+    }
+
+    setBusy(true);
+    resetFeedback();
+    try {
+      if (!supabase) {
+        setErrorMessage("Supabase auth is not configured.");
+        return;
+      }
+
+      const { error } = await supabase.auth.verifyOtp({
+        email: cleanEmail,
+        token: cleanCode,
+        type: mode === "signup" ? "signup" : "email",
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      const { data } = await supabase.auth.getSession();
+      if (data.session?.access_token) {
+        persistBrowserSession(data.session.access_token, data.session.refresh_token);
+      }
+
+      setMessage("Verification successful. Redirecting...");
+      router.replace(nextHref);
+    } catch (error) {
+      const fallback = "Unable to verify code.";
+      const detail = error instanceof Error ? error.message : fallback;
+      setErrorMessage(humanizeAuthError(detail, fallback));
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function signInWithGoogle() {
@@ -133,7 +173,7 @@ function AuthContent() {
           <header className="panel-strong hero-panel p-6">
             <p className="section-kicker">Secure Access</p>
             <h1 className="hero-title mt-2 text-3xl font-black tracking-tight">Login / Sign Up</h1>
-            <p className="hero-lead mt-2 text-sm">Use the magic link email from Supabase to sign in securely.</p>
+            <p className="hero-lead mt-2 text-sm">Enter your email, get a verification code, and use that code to sign in.</p>
           </header>
 
           <section className="panel p-6">
@@ -154,8 +194,8 @@ function AuthContent() {
                 <input className="input" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} />
 
                 <div className="mt-4 grid gap-2">
-                  <button disabled={busy || !email.trim()} className="btn-primary inline-flex w-full items-center justify-center gap-2 px-4 py-2 text-sm disabled:opacity-40" onClick={sendMagicLink}>
-                    <Mail className="h-4 w-4" /> {mode === "login" ? "Send Login Link" : "Create Account via Email Link"}
+                  <button disabled={busy || !email.trim()} className="btn-primary inline-flex w-full items-center justify-center gap-2 px-4 py-2 text-sm disabled:opacity-40" onClick={sendOtpCode}>
+                    <Mail className="h-4 w-4" /> {mode === "login" ? "Send Verification Code" : "Create Account with Code"}
                   </button>
                   <button disabled={busy} className="btn-secondary inline-flex w-full items-center justify-center gap-2 px-4 py-2 text-sm disabled:opacity-40" onClick={signInWithGoogle}>
                     <span className="font-semibold">G</span> Continue with Google
@@ -164,22 +204,32 @@ function AuthContent() {
               </>
             ) : null}
 
-            {step === "check-email" ? (
+            {step === "code" ? (
               <div className="space-y-4">
-                <p className="text-sm text-slate-600">Check your inbox for the login link sent to <span className="font-semibold">{email}</span>.</p>
+                <div>
+                  <label className="mb-2 block text-xs uppercase tracking-[0.16em] text-cyan-500">Email</label>
+                  <input className="input" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} />
+                </div>
+                <div>
+                  <label className="mb-2 block text-xs uppercase tracking-[0.16em] text-cyan-500">Verification code</label>
+                  <input className="input" placeholder="123456" value={otpCode} onChange={(e) => setOtpCode(e.target.value)} />
+                </div>
                 <div className="grid gap-2">
-                  <button className="btn-primary inline-flex w-full items-center justify-center gap-2 px-4 py-2 text-sm" onClick={sendMagicLink} disabled={busy}>
-                    <Mail className="h-4 w-4" /> Resend Login Link
+                  <button disabled={busy || !email.trim() || !otpCode.trim()} className="btn-primary inline-flex w-full items-center justify-center gap-2 px-4 py-2 text-sm disabled:opacity-40" onClick={verifyOtpCode}>
+                    <KeyRound className="h-4 w-4" /> Verify Code
+                  </button>
+                  <button className="btn-secondary inline-flex w-full items-center justify-center gap-2 px-4 py-2 text-sm" onClick={sendOtpCode} disabled={busy || !email.trim()}>
+                    <Mail className="h-4 w-4" /> Resend Code
                   </button>
                   <button className="btn-secondary inline-flex w-full items-center justify-center gap-2 px-4 py-2 text-sm" onClick={() => { setStep("form"); resetFeedback(); }}>
-                    Back
+                    <ArrowLeft className="h-4 w-4" /> Back
                   </button>
                 </div>
               </div>
             ) : null}
 
             {!authReady ? <p className="mt-3 text-xs text-rose-500">Supabase auth is not configured.</p> : null}
-            {authReady ? <p className="mt-3 text-xs text-slate-500">Supabase is configured for magic links. Make sure redirect URLs include <span className="font-medium">/auth/callback</span>.</p> : null}
+            {authReady ? <p className="mt-3 text-xs text-slate-500">Supabase email template must use <span className="font-medium">{`{{ .Token }}`}</span> for code-based login.</p> : null}
             {message ? <p className="mt-3 text-sm text-emerald-600">{message}</p> : null}
             {errorMessage ? <p className="mt-3 text-sm text-rose-500">{errorMessage}</p> : null}
 
