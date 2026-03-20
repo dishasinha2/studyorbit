@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
-import { motion } from "framer-motion";
-import { AlarmClock, AlertTriangle, CalendarCheck, CheckCircle2, ChevronDown, Clock3, Command, Expand, ExternalLink, FileStack, FolderOpen, Highlighter, Layers3, Lightbulb, Link2, Lock, PenSquare, Pin, Plus, Search, Timer, Trash2, Underline, UserCircle2, Youtube, Zap } from "lucide-react";
+import { AnimatePresence, motion, type PanInfo } from "framer-motion";
+import { AlarmClock, AlertTriangle, CalendarCheck, CheckCircle2, ChevronDown, ChevronRight, Clock3, Command, Expand, ExternalLink, FileStack, FolderOpen, Highlighter, Layers3, Lightbulb, Link2, Lock, PenSquare, Pin, Plus, Search, Timer, Trash2, Underline, UserCircle2, Youtube, Zap } from "lucide-react";
 import { createSupabaseBrowserClient } from "@/lib/supabase-client";
 import { AuthPanel } from "@/components/auth-panel";
 import type { Artifact, FileItem, FocusSession, PlannerEvent, StickyNote, VideoBookmark, Whiteboard } from "@/lib/types";
@@ -77,9 +77,24 @@ function CollapsibleCard({ id, title, icon, children, defaultOpen = true, right 
 
 type WorkspaceShellProps = {
   activeModule?: WorkspaceModuleId;
+  onCountsChange?: (counts: Partial<Record<WorkspaceModuleId, number>>) => void;
 };
 
-export function WorkspaceShell({ activeModule = "all" }: WorkspaceShellProps) {
+type ModuleLoadingState = {
+  brief: boolean;
+  events: boolean;
+  stickies: boolean;
+  focus: boolean;
+  notes: boolean;
+  tasks: boolean;
+  links: boolean;
+  boards: boolean;
+  videos: boolean;
+  files: boolean;
+  search: boolean;
+};
+
+export function WorkspaceShell({ activeModule = "all", onCountsChange }: WorkspaceShellProps) {
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
   const [mounted, setMounted] = useState(false);
   const [ready, setReady] = useState(false);
@@ -105,6 +120,19 @@ export function WorkspaceShell({ activeModule = "all" }: WorkspaceShellProps) {
   const [searchCounts, setSearchCounts] = useState<Record<string, number>>({ all: 0 });
   const [searchLoading, setSearchLoading] = useState(false);
   const [seedingDemo, setSeedingDemo] = useState(false);
+  const [moduleLoading, setModuleLoading] = useState<ModuleLoadingState>({
+    brief: false,
+    events: false,
+    stickies: false,
+    focus: false,
+    notes: false,
+    tasks: false,
+    links: false,
+    boards: false,
+    videos: false,
+    files: false,
+    search: false,
+  });
 
   const [quickTaskTitle, setQuickTaskTitle] = useState("");
   const [quickTaskDue, setQuickTaskDue] = useState("");
@@ -520,6 +548,19 @@ export function WorkspaceShell({ activeModule = "all" }: WorkspaceShellProps) {
 
   const loadData = useCallback(async () => {
     if (!Object.keys(authHeaders).length) return;
+    setModuleLoading((prev) => ({
+      ...prev,
+      brief: moduleNeeds.brief,
+      events: moduleNeeds.events,
+      stickies: moduleNeeds.stickies,
+      focus: moduleNeeds.focus,
+      notes: moduleNeeds.notes,
+      tasks: moduleNeeds.tasks,
+      links: moduleNeeds.links,
+      boards: moduleNeeds.boards,
+      videos: moduleNeeds.videos,
+      files: moduleNeeds.files,
+    }));
     const [brief, e, s, f, n, t, l, b, v, fi] = await Promise.all([
       moduleNeeds.brief ? fetchJson("/api/daily-brief", { headers: authHeaders }) : Promise.resolve(undefined),
       moduleNeeds.events ? fetchJson("/api/events", { headers: authHeaders }) : Promise.resolve(undefined),
@@ -545,6 +586,19 @@ export function WorkspaceShell({ activeModule = "all" }: WorkspaceShellProps) {
     if (moduleNeeds.boards) setBoards(b?.boards ?? []);
     if (moduleNeeds.videos) setVideos(v?.videos ?? []);
     if (moduleNeeds.files) setFiles(fi?.files ?? []);
+    setModuleLoading((prev) => ({
+      ...prev,
+      brief: false,
+      events: false,
+      stickies: false,
+      focus: false,
+      notes: false,
+      tasks: false,
+      links: false,
+      boards: false,
+      videos: false,
+      files: false,
+    }));
   }, [authHeaders, fetchJson, moduleNeeds]);
 
   const runSearch = useCallback(async () => {
@@ -555,6 +609,7 @@ export function WorkspaceShell({ activeModule = "all" }: WorkspaceShellProps) {
       setSearchCounts({ all: 0 });
       return;
     }
+    setModuleLoading((prev) => ({ ...prev, search: true }));
     setSearchLoading(true);
     try {
       const params = new URLSearchParams({ q, kind: searchKind });
@@ -563,6 +618,7 @@ export function WorkspaceShell({ activeModule = "all" }: WorkspaceShellProps) {
       setSearchCounts(data?.counts ?? { all: 0 });
     } finally {
       setSearchLoading(false);
+      setModuleLoading((prev) => ({ ...prev, search: false }));
     }
   }, [searchQuery, searchKind, fetchJson, authHeaders, moduleNeeds.search]);
 
@@ -1319,15 +1375,56 @@ export function WorkspaceShell({ activeModule = "all" }: WorkspaceShellProps) {
   }, [paletteQuery, commandItems]);
 
   const timerLabel = `${String(Math.floor(timerSeconds / 60)).padStart(2, "0")}:${String(timerSeconds % 60).padStart(2, "0")}`;
+  const currentTimerBase = timerPhase === "work" ? pomodoroMin * 60 : breakMin * 60;
+  const timerProgress = currentTimerBase > 0 ? Math.max(0, Math.min(100, ((currentTimerBase - timerSeconds) / currentTimerBase) * 100)) : 0;
+  const shortcutItems = [
+    { id: "notes", label: "Notes", detail: "Capture class notes and revision points", run: () => jumpTo("notes") },
+    { id: "videos", label: "YouTube Links", detail: "Save lectures and mark progress", run: () => jumpTo("videos") },
+    { id: "files", label: "File Manager", detail: "Keep PDFs, slides, and study docs", run: () => jumpTo("files") },
+  ];
+  const sidebarCounts = useMemo<Partial<Record<WorkspaceModuleId, number>>>(() => ({
+    "quick-capture": dailyBrief?.summary.pendingTasks ?? 0,
+    dashboard: todayTimeline.length,
+    files: files.length,
+    videos: videos.length,
+    notes: notes.length,
+    "study-links": studyLinks.length,
+    "focus-lab": focusSessions.length,
+  }), [dailyBrief?.summary.pendingTasks, todayTimeline.length, files.length, videos.length, notes.length, studyLinks.length, focusSessions.length]);
+
+  useEffect(() => {
+    onCountsChange?.(sidebarCounts);
+  }, [onCountsChange, sidebarCounts]);
+
+  const renderModuleSkeleton = useCallback((count = 3) => (
+    <div className="grid gap-3">
+      {Array.from({ length: count }).map((_, index) => (
+        <div key={index} className="module-skeleton-card">
+          <div className="module-skeleton-line module-skeleton-line-lg" />
+          <div className="module-skeleton-line module-skeleton-line-md" />
+          <div className="module-skeleton-line module-skeleton-line-sm" />
+        </div>
+      ))}
+    </div>
+  ), []);
+
+  async function updateStickyPosition(note: StickyNote, info: PanInfo) {
+    const nextPosX = Math.round((note.posX ?? 0) + info.offset.x);
+    const nextPosY = Math.round((note.posY ?? 0) + info.offset.y);
+    setStickies((current) =>
+      current.map((item) => (item.id === note.id ? { ...item, posX: nextPosX, posY: nextPosY } : item)),
+    );
+    await patch(`/api/sticky/${note.id}`, { posX: nextPosX, posY: nextPosY });
+  }
 
   return (
     <div className="space-y-6">
       {showOverview ? (
-      <section className="panel p-4">
+      <section className="panel workspace-command-bar p-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-cyan-500">OrbitDesk Control Bar</p>
-            <p className="text-sm text-slate-500">{email ?? "Guest session"} - {focusMode ? "Focus ON" : "Focus OFF"}</p>
+            <p className="text-xs uppercase tracking-[0.2em] text-cyan-500">StudyOrbit Command Bar</p>
+            <p className="text-sm text-slate-400">{email ?? "Guest session"} - {focusMode ? "Focus mode active" : "Focus mode off"}</p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <button className="btn-secondary inline-flex items-center gap-2 px-3 py-2 text-xs" onClick={seedStudyDemoData} disabled={seedingDemo}>
@@ -1357,88 +1454,91 @@ export function WorkspaceShell({ activeModule = "all" }: WorkspaceShellProps) {
       ) : null}
 
       {showOverview ? (
-      <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-        <div className="subpanel">
-          <h3 className="sub-title"><Layers3 className="h-3.5 w-3.5" /> Tasks progress</h3>
-          <p className="text-2xl font-black text-slate-700">{studyMetrics.pctTasks}%</p>
+      <section className="workspace-metric-grid">
+        <div className="workspace-metric-card">
+          <span className="workspace-metric-accent workspace-metric-accent-violet" />
+          <h3 className="sub-title"><Layers3 className="h-3.5 w-3.5" /> Task completion</h3>
+          <p className="text-3xl font-black text-slate-50">{studyMetrics.pctTasks}%</p>
           <div className="progress-track"><div className="progress-fill" style={{ width: `${studyMetrics.pctTasks}%` }} /></div>
-          <p className="text-xs text-slate-500">{studyMetrics.completedTasks}/{studyMetrics.totalTasks} completed</p>
+          <p className="text-xs text-slate-400">{studyMetrics.completedTasks}/{studyMetrics.totalTasks} tasks completed</p>
         </div>
-        <div className="subpanel">
-          <h3 className="sub-title"><Youtube className="h-3.5 w-3.5" /> Videos progress</h3>
-          <p className="text-2xl font-black text-slate-700">{studyMetrics.pctVideos}%</p>
-          <div className="progress-track"><div className="progress-fill" style={{ width: `${studyMetrics.pctVideos}%` }} /></div>
-          <p className="text-xs text-slate-500">{studyMetrics.completedVideos}/{studyMetrics.totalVideos} completed</p>
+        <div className="workspace-metric-card">
+          <span className="workspace-metric-accent workspace-metric-accent-cyan" />
+          <h3 className="sub-title"><Timer className="h-3.5 w-3.5" /> Focus hours</h3>
+          <p className="text-3xl font-black text-slate-50">{(focusUsedMinutes / 60).toFixed(1)}h</p>
+          <div className="progress-track"><div className="progress-fill" style={{ width: `${Math.min(100, (focusUsedMinutes / Math.max(screenLimitMin, 1)) * 100)}%` }} /></div>
+          <p className="text-xs text-slate-400">{focusUsedMinutes}/{screenLimitMin} minutes used today</p>
         </div>
-        <div className="subpanel">
-          <h3 className="sub-title"><FolderOpen className="h-3.5 w-3.5" /> Files saved</h3>
-          <p className="text-2xl font-black text-slate-700">{files.length}</p>
-          <p className="text-xs text-slate-500">{fileSubjectGroups.length} subject groups</p>
+        <div className="workspace-metric-card">
+          <span className="workspace-metric-accent workspace-metric-accent-emerald" />
+          <h3 className="sub-title"><FileStack className="h-3.5 w-3.5" /> Saved files</h3>
+          <p className="text-3xl font-black text-slate-50">{files.length}</p>
+          <div className="progress-track"><div className="progress-fill" style={{ width: `${Math.min(100, files.length * 12)}%` }} /></div>
+          <p className="text-xs text-slate-400">{fileSubjectGroups.length} subject groups organized</p>
         </div>
-        <div className="subpanel">
-          <h3 className="sub-title"><Pin className="h-3.5 w-3.5" /> Priority board</h3>
-          {priorityItems.length ? (
-            <div className="space-y-1">
-              {priorityItems.map((item) => (
-                <p key={`${item.kind}-${item.id}`} className="line-clamp-1 text-xs text-slate-600">{item.label}</p>
-              ))}
-            </div>
-          ) : (
-            <p className="text-xs text-slate-400">No priority items.</p>
-          )}
+        <div className="workspace-metric-card">
+          <span className="workspace-metric-accent workspace-metric-accent-amber" />
+          <h3 className="sub-title"><Pin className="h-3.5 w-3.5" /> Study streak</h3>
+          <p className="text-3xl font-black text-slate-50">{studyStreak.days}</p>
+          <div className="progress-track"><div className="progress-fill" style={{ width: `${Math.min(100, studyStreak.days * 14)}%` }} /></div>
+          <p className="text-xs text-slate-400">{studyStreak.lastDay ? `Last session ${toLabel(studyStreak.lastDay)}` : "Start a focus session today"}</p>
         </div>
       </section>
       ) : null}
 
       {showOverview ? (
-      <section className="soft-card p-5">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-cyan-500">Study Progress</p>
-            <p className="mt-1 text-sm text-slate-500">Track completion at a glance.</p>
-          </div>
-          <div className="grid min-w-[260px] gap-3 sm:min-w-[360px]">
-            <div className="space-y-1">
-              <div className="flex items-center justify-between text-xs text-slate-500">
-                <span>Tasks</span>
-                <span>{studyMetrics.completedTasks}/{studyMetrics.totalTasks}</span>
-              </div>
-              <div className="progress-track"><div className="progress-fill" style={{ width: `${studyMetrics.pctTasks}%` }} /></div>
+      <section className="grid gap-4 xl:grid-cols-[1.35fr_360px]">
+        <div className="soft-card dashboard-hero-card p-5">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <p className="text-xs uppercase tracking-[0.2em] text-cyan-500">{greeting}</p>
+              <h2 className="mt-2 text-3xl font-black text-slate-50">Your day, arranged and actionable.</h2>
+              <p className="mt-1 text-sm text-slate-400">
+                {mounted
+                  ? `${nowDate.toLocaleDateString([], { weekday: "long", month: "short", day: "numeric" })} - ${nowDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
+                  : "Loading local time..."}
+              </p>
             </div>
-            <div className="space-y-1">
-              <div className="flex items-center justify-between text-xs text-slate-500">
-                <span>Videos</span>
-                <span>{studyMetrics.completedVideos}/{studyMetrics.totalVideos}</span>
-              </div>
-              <div className="progress-track"><div className="progress-fill" style={{ width: `${studyMetrics.pctVideos}%` }} /></div>
-            </div>
-            <div className="flex flex-wrap gap-2 text-xs">
-              <span className="chip">Focus min: {focusUsedMinutes}</span>
-              <span className="chip">Streak: {studyStreak.days}</span>
+            <div className="flex flex-wrap items-center gap-2 text-xs">
+              <span className="chip">Morning: {segmentCounts.morning}</span>
+              <span className="chip">Afternoon: {segmentCounts.afternoon}</span>
+              <span className="chip">Evening: {segmentCounts.evening}</span>
+              <span className={`chip ${nextUp ? "chip-warn" : ""}`}>
+                Next: {nextUp ? `${nextUp.title} in ${timeUntilLabel(nextUp.at ?? new Date().toISOString(), nowTs)}` : "Nothing pending"}
+              </span>
             </div>
           </div>
         </div>
-      </section>
-      ) : null}
-
-      {showOverview ? (
-      <section className="panel p-4">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-cyan-500">{greeting}</p>
-            <p className="text-sm text-slate-600">
-              {mounted
-                ? `${nowDate.toLocaleDateString([], { weekday: "long", month: "short", day: "numeric" })} - ${nowDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
-                : "Loading local time..."}
-            </p>
+        <div className="soft-card dashboard-focus-card p-5">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="text-xs uppercase tracking-[0.2em] text-cyan-500">Focus Timer</p>
+              <p className="mt-1 text-sm text-slate-400">{timerPhase === "work" ? "Deep work running" : "Break window"}</p>
+            </div>
+            <span className={`chip ${focusMode ? "chip-active" : ""}`}>{focusMode ? "Focus ON" : "Focus OFF"}</span>
           </div>
-          <div className="flex flex-wrap items-center gap-2 text-xs">
-            <span className="chip">Morning: {segmentCounts.morning}</span>
-            <span className="chip">Afternoon: {segmentCounts.afternoon}</span>
-            <span className="chip">Evening: {segmentCounts.evening}</span>
-            <span className={`chip ${nextUp ? "chip-warn" : ""}`}>
-              Next up: {nextUp ? `${nextUp.title} in ${timeUntilLabel(nextUp.at ?? new Date().toISOString(), nowTs)}` : "Nothing pending"}
-            </span>
+          <div className="mt-4 flex items-center gap-4">
+            <div className="progress-ring" style={{ ["--progress" as string]: `${timerProgress}%` }}>
+              <div className="progress-ring-inner">
+                <span>{timerLabel}</span>
+              </div>
+            </div>
+            <div className="space-y-2 text-sm text-slate-300">
+              <div className="flex flex-wrap gap-2">
+                <button className={`chip ${timerPhase === "work" ? "chip-active" : ""}`} onClick={() => { setTimerPhase("work"); setTimerSeconds(pomodoroMin * 60); }}>Focus {pomodoroMin}m</button>
+                <button className={`chip ${timerPhase === "break" && breakMin === 5 ? "chip-active" : ""}`} onClick={() => { setTimerPhase("break"); setBreakMin(5); setTimerSeconds(5 * 60); }}>Short 5m</button>
+                <button className={`chip ${timerPhase === "break" && breakMin === 15 ? "chip-active" : ""}`} onClick={() => { setTimerPhase("break"); setBreakMin(15); setTimerSeconds(15 * 60); }}>Long 15m</button>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <button className="btn-primary px-4 py-2 text-sm" onClick={toggleTimer}>{timerRunning ? "Pause" : "Start"}</button>
+                <button className="btn-secondary px-4 py-2 text-sm" onClick={resetTimer}>Reset</button>
+              </div>
+              <div className="flex gap-1">
+                {Array.from({ length: 5 }).map((_, index) => (
+                  <span key={index} className={`session-dot ${index < Math.min(studyStreak.days, 5) ? "session-dot-active" : ""}`} />
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -1500,7 +1600,18 @@ export function WorkspaceShell({ activeModule = "all" }: WorkspaceShellProps) {
 
       {showAllModules || activeModule === "dashboard" ? (
       <motion.section id="dashboard" {...cardMotion} className="panel p-5">
-        <h2 className="title-sm mb-3">Workboard</h2>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 className="title-sm">Task Schedule</h2>
+            <p className="mt-1 text-sm text-slate-400">Clickable tasks, deadlines, and direct access to study modules.</p>
+          </div>
+          <div className="flex gap-1 text-[11px]">
+            <button className={`chip ${taskStatusFilter === "all" ? "chip-active" : ""}`} onClick={() => setTaskStatusFilter("all")}>All</button>
+            <button className={`chip ${taskStatusFilter === "pending" ? "chip-active" : ""}`} onClick={() => setTaskStatusFilter("pending")}>Pending</button>
+            <button className={`chip ${taskStatusFilter === "in-progress" ? "chip-active" : ""}`} onClick={() => setTaskStatusFilter("in-progress")}>In Progress</button>
+            <button className={`chip ${taskStatusFilter === "completed" ? "chip-active" : ""}`} onClick={() => setTaskStatusFilter("completed")}>Done</button>
+          </div>
+        </div>
         {(dailyBrief?.summary.overdueTasks ?? 0) > 0 ? (
           <div className="mb-3 rounded-lg border border-amber-300/40 bg-amber-100/70 p-2 text-xs text-amber-700">
             Priority: {(dailyBrief?.summary.overdueTasks ?? 0)} overdue tasks pending.
@@ -1513,16 +1624,11 @@ export function WorkspaceShell({ activeModule = "all" }: WorkspaceShellProps) {
             <Plus className="h-4 w-4" />
           </button>
         </div>
-        <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+        <div className="mt-4 grid gap-4 xl:grid-cols-[1.45fr_0.95fr]">
           <div className="soft-card p-4">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <h3 className="sub-title">Today tasks</h3>
-              <div className="flex gap-1 text-[11px]">
-                <button className={`chip ${taskStatusFilter === "all" ? "chip-active" : ""}`} onClick={() => setTaskStatusFilter("all")}>All</button>
-                <button className={`chip ${taskStatusFilter === "pending" ? "chip-active" : ""}`} onClick={() => setTaskStatusFilter("pending")}>Pending</button>
-                <button className={`chip ${taskStatusFilter === "in-progress" ? "chip-active" : ""}`} onClick={() => setTaskStatusFilter("in-progress")}>In Progress</button>
-                <button className={`chip ${taskStatusFilter === "completed" ? "chip-active" : ""}`} onClick={() => setTaskStatusFilter("completed")}>Completed</button>
-              </div>
+              <span className="chip">Tap card to toggle done</span>
             </div>
             <div className="mt-2 flex flex-wrap gap-2 text-[11px]">
               <span className="chip">All: {(dailyBrief?.todayTasks ?? []).length}</span>
@@ -1530,55 +1636,70 @@ export function WorkspaceShell({ activeModule = "all" }: WorkspaceShellProps) {
               <span className="chip border-cyan-200 bg-cyan-50 text-cyan-700">In Progress: {(dailyBrief?.todayTasks ?? []).filter((task) => taskStatusOf(task) === "IN_PROGRESS").length}</span>
               <span className="chip">Completed: {(dailyBrief?.todayTasks ?? []).filter((task) => taskStatusOf(task) === "COMPLETED").length}</span>
             </div>
-            <div className="mt-2 space-y-2">
-              {filteredTodayTasks.slice(0, 4).map((task) => (
-                <div key={task.id} className="rounded-xl border border-slate-200 bg-white/70 p-2.5">
+            <div className="mt-3 grid gap-3">
+              {moduleLoading.tasks ? renderModuleSkeleton(4) : null}
+              {!moduleLoading.tasks && filteredTodayTasks.slice(0, 6).map((task) => {
+                const status = taskStatusOf(task);
+                const isOverdue = task.dueAt ? new Date(task.dueAt).getTime() < nowTs && status !== "COMPLETED" : false;
+                const priorityClass = isOverdue ? "priority-dot-high" : status === "IN_PROGRESS" ? "priority-dot-mid" : "priority-dot-low";
+                return (
+                <button
+                  key={task.id}
+                  className="task-board-card text-left"
+                  onClick={() => patch(`/api/artifacts/${task.id}`, { status: status === "COMPLETED" ? "PENDING" : "COMPLETED" })}
+                >
                   <div className="flex items-start justify-between gap-2">
-                    <div>
-                      <p className="text-sm font-medium text-slate-700">{task.title}</p>
-                      <p className="mt-1 text-[11px] text-slate-500">{task.dueAt ? `Due: ${toLabel(task.dueAt)}` : "No due time"}</p>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className={`priority-dot ${priorityClass}`} />
+                        <p className="truncate text-sm font-medium text-slate-100">{task.title}</p>
+                      </div>
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        <span className="chip">{task.contextKey ?? "Study"}</span>
+                        {task.dueAt ? <span className="chip">{toLabel(task.dueAt)}</span> : <span className="chip">No due time</span>}
+                        <span className={`chip text-[10px] ${taskStatusChipClass(status)}`}>{taskStatusLabel(status)}</span>
+                      </div>
                     </div>
-                    <span className={`chip text-[10px] ${taskStatusChipClass(taskStatusOf(task))}`}>{taskStatusLabel(taskStatusOf(task))}</span>
+                    <CheckCircle2 className={`h-5 w-5 shrink-0 ${status === "COMPLETED" ? "text-emerald-400" : "text-slate-500"}`} />
                   </div>
-                  <div className="mt-2 flex flex-wrap items-center gap-2">
-                    <select
-                      className="input max-w-[180px] py-2 text-xs"
-                      value={taskStatusOf(task)}
-                      onChange={(e) => patch(`/api/artifacts/${task.id}`, { status: e.target.value })}
-                    >
-                      <option value="PENDING">Pending</option>
-                      <option value="IN_PROGRESS">In Progress</option>
-                      <option value="COMPLETED">Completed</option>
-                    </select>
-                    <button className="text-xs font-medium text-cyan-600" onClick={() => patch(`/api/artifacts/${task.id}`, { status: "COMPLETED" })}>
-                      Quick complete
-                    </button>
-                  </div>
-                </div>
-              ))}
+                </button>
+              )})}
             </div>
-            {filteredTodayTasks.length === 0 ? <p className="mt-2 text-xs text-slate-400">No tasks in this status.</p> : null}
+            {!moduleLoading.tasks && filteredTodayTasks.length === 0 ? <p className="mt-2 text-xs text-slate-400">No tasks in this status.</p> : null}
           </div>
-          <div className="soft-card p-4">
-            <h3 className="sub-title">Meetings</h3>
-            {(dailyBrief?.todayEvents ?? []).slice(0, 4).map((meeting) => (
-              <p key={meeting.id} className="text-xs text-slate-600">{meeting.title} - {toLabel(meeting.startAt)}</p>
-            ))}
-            {(dailyBrief?.todayEvents ?? []).length === 0 ? <p className="text-xs text-slate-400">No meetings scheduled.</p> : null}
-          </div>
-          <div className="soft-card p-4">
-            <h3 className="sub-title">Same-day reminders</h3>
-            {(dailyBrief?.remindersDue ?? []).slice(0, 4).map((item) => (
-              <p key={item.id} className="text-xs text-slate-600">{item.title} - {toLabel(item.reminderAt)}</p>
-            ))}
-            {(dailyBrief?.remindersDue ?? []).length === 0 ? <p className="text-xs text-slate-400">No reminders due today.</p> : null}
-          </div>
-          <div className="soft-card p-4">
-            <h3 className="sub-title">Pinned sticky</h3>
-            {(dailyBrief?.pinnedSticky ?? []).slice(0, 4).map((item) => (
-              <p key={item.id} className="line-clamp-2 text-xs text-slate-600">{item.content}</p>
-            ))}
-            {(dailyBrief?.pinnedSticky ?? []).length === 0 ? <p className="text-xs text-slate-400">Pin important notes to keep them here.</p> : null}
+          <div className="grid gap-4">
+            <div className="soft-card p-4">
+              <h3 className="sub-title">Upcoming</h3>
+              <div className="mt-3 grid gap-2">
+                {(dailyBrief?.todayEvents ?? []).slice(0, 2).map((meeting) => (
+                  <div key={meeting.id} className="timeline-card">
+                    <p className="text-sm font-semibold text-slate-100">{meeting.title}</p>
+                    <p className="text-xs text-slate-400">{toLabel(meeting.startAt)}</p>
+                  </div>
+                ))}
+                {(dailyBrief?.remindersDue ?? []).slice(0, 2).map((item) => (
+                  <div key={item.id} className="timeline-card">
+                    <p className="text-sm font-semibold text-slate-100">{item.title}</p>
+                    <p className="text-xs text-slate-400">{toLabel(item.reminderAt)}</p>
+                  </div>
+                ))}
+                {(dailyBrief?.todayEvents ?? []).length === 0 && (dailyBrief?.remindersDue ?? []).length === 0 ? <p className="text-xs text-slate-400">No meetings or reminders scheduled.</p> : null}
+              </div>
+            </div>
+            <div className="soft-card p-4">
+              <h3 className="sub-title">Module shortcuts</h3>
+              <div className="mt-3 grid gap-3">
+                {shortcutItems.map((item) => (
+                  <button key={item.id} className="module-shortcut-card text-left" onClick={item.run}>
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="text-sm font-semibold text-slate-100">{item.label}</p>
+                      <ChevronRight className="h-4 w-4 text-cyan-300" />
+                    </div>
+                    <p className="mt-1 text-xs text-slate-400">{item.detail}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </motion.section>
@@ -1693,7 +1814,8 @@ export function WorkspaceShell({ activeModule = "all" }: WorkspaceShellProps) {
       {showAllModules || activeModule === "dashboard" || activeModule === "timeline" ? (
       <CollapsibleCard id="timeline" title="Today Timeline" icon={<Clock3 className="h-4 w-4" />}>
         <div className="grid gap-2">
-          {todayTimeline.slice(0, 12).map((item) => (
+          {moduleLoading.brief || moduleLoading.tasks || moduleLoading.events ? renderModuleSkeleton(4) : null}
+          {!moduleLoading.brief && !moduleLoading.tasks && !moduleLoading.events && todayTimeline.slice(0, 12).map((item) => (
             <div key={item.id} className="timeline-card">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
@@ -1711,7 +1833,7 @@ export function WorkspaceShell({ activeModule = "all" }: WorkspaceShellProps) {
               </p>
             </div>
           ))}
-          {todayTimeline.length === 0 ? (
+          {!moduleLoading.brief && !moduleLoading.tasks && !moduleLoading.events && todayTimeline.length === 0 ? (
             <div className="empty-state">
               <div className="empty-illustration"><Clock3 className="h-6 w-6" /></div>
               <p className="text-sm font-semibold text-slate-700">No timeline items yet</p>
@@ -1799,8 +1921,22 @@ export function WorkspaceShell({ activeModule = "all" }: WorkspaceShellProps) {
             <button className={`chip ${stickyFilter === "study" ? "chip-active" : ""}`} onClick={() => setStickyFilter("study")}>Study</button>
           </div>
           <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-            {filteredStickies.map((n) => (
-              <div key={n.id} className="saved-card text-xs text-slate-950" style={{ background: n.color }}>
+            {moduleLoading.stickies ? renderModuleSkeleton(3) : null}
+            {!moduleLoading.stickies && filteredStickies.map((n, index) => {
+              const tilt = ((index % 4) - 1.5) * 1.8;
+              return (
+              <motion.div
+                key={n.id}
+                drag
+                dragMomentum={false}
+                dragElastic={0.14}
+                dragConstraints={{ left: -80, right: 80, top: -80, bottom: 80 }}
+                onDragEnd={(_, info) => void updateStickyPosition(n, info)}
+                whileHover={{ y: -8, rotate: tilt + (tilt >= 0 ? 1.2 : -1.2), scale: 1.015 }}
+                whileTap={{ scale: 0.98 }}
+                className="sticky-note-card text-xs text-slate-950"
+                style={{ background: n.color, rotate: `${tilt}deg`, x: n.posX ?? 0, y: n.posY ?? 0 }}
+              >
                 <div className="flex items-start justify-between gap-2">
                   <div>
                     <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-700">
@@ -1808,25 +1944,25 @@ export function WorkspaceShell({ activeModule = "all" }: WorkspaceShellProps) {
                     </p>
                     <p className="mt-1 line-clamp-5 text-sm font-medium text-slate-900">{n.content}</p>
                   </div>
-                  <button className="text-slate-700 transition hover:text-slate-950" onClick={() => patch(`/api/sticky/${n.id}`, { isPinned: !n.isPinned })}>
+                  <button className="text-slate-700 transition hover:text-slate-950" onPointerDown={(e) => e.stopPropagation()} onClick={() => patch(`/api/sticky/${n.id}`, { isPinned: !n.isPinned })}>
                     <Pin className={`h-4 w-4 ${n.isPinned ? "fill-current" : ""}`} />
                   </button>
                 </div>
                 <p className="mt-3 text-[11px] text-slate-700">Updated: {toLabel(n.updatedAt)}</p>
                 <div className="mt-3 flex flex-wrap gap-2">
-                  <button className="chip border-slate-700/30 bg-white/30 text-slate-900" onClick={() => sendStickyToTask(n)}>
+                  <button className="chip border-slate-700/30 bg-white/30 text-slate-900" onPointerDown={(e) => e.stopPropagation()} onClick={() => sendStickyToTask(n)}>
                     Send to task
                   </button>
-                  <button className="chip border-slate-700/30 bg-white/30 text-slate-900" onClick={() => setStickyContent(n.content)}>
+                  <button className="chip border-slate-700/30 bg-white/30 text-slate-900" onPointerDown={(e) => e.stopPropagation()} onClick={() => setStickyContent(n.content)}>
                     Reuse
                   </button>
-                  <button className="chip border-slate-700/30 bg-white/30 text-slate-900" onClick={() => removeItem(`/api/sticky/${n.id}`)}>
+                  <button className="chip border-slate-700/30 bg-white/30 text-slate-900" onPointerDown={(e) => e.stopPropagation()} onClick={() => removeItem(`/api/sticky/${n.id}`)}>
                     Delete
                   </button>
                 </div>
-              </div>
-            ))}
-            {filteredStickies.length === 0 ? (
+              </motion.div>
+            )})}
+            {!moduleLoading.stickies && filteredStickies.length === 0 ? (
               <div className="empty-state sm:col-span-2 xl:col-span-3">
                 <div className="empty-illustration"><Pin className="h-6 w-6" /></div>
                 <p className="text-sm font-semibold text-slate-700">No sticky notes in this view</p>
@@ -1891,7 +2027,8 @@ export function WorkspaceShell({ activeModule = "all" }: WorkspaceShellProps) {
               </div>
             </div>
             <p className="text-xs uppercase tracking-[0.18em] text-cyan-200">Saved notes</p>
-            {filteredNotes.map((note) => (
+            {moduleLoading.notes ? renderModuleSkeleton(3) : null}
+            {!moduleLoading.notes && filteredNotes.map((note) => (
               <div key={note.id} className="saved-card">
                 <div className="flex items-start justify-between gap-2">
                   <div>
@@ -1913,7 +2050,7 @@ export function WorkspaceShell({ activeModule = "all" }: WorkspaceShellProps) {
                 ) : null}
               </div>
             ))}
-            {filteredNotes.length === 0 ? (
+            {!moduleLoading.notes && filteredNotes.length === 0 ? (
               <div className="empty-state">
                 <div className="empty-illustration"><PenSquare className="h-6 w-6" /></div>
                 <p className="text-sm font-semibold text-slate-700">No notes found</p>
@@ -2097,7 +2234,8 @@ export function WorkspaceShell({ activeModule = "all" }: WorkspaceShellProps) {
           <button className={`chip ${videoView === "completed" ? "ring-1 ring-cyan-300/60" : ""}`} onClick={() => setVideoView("completed")}>Completed</button>
         </div>
         <div className="mt-4 grid gap-2 md:grid-cols-2">
-          {[...filteredVideos].sort((a, b) => Number(a.isCompleted) - Number(b.isCompleted)).map((video) => (
+          {moduleLoading.videos ? renderModuleSkeleton(4) : null}
+          {!moduleLoading.videos && [...filteredVideos].sort((a, b) => Number(a.isCompleted) - Number(b.isCompleted)).map((video) => (
             <div key={video.id} className="saved-card">
               <div className="flex items-center justify-between gap-2">
                 <p className={`text-xs font-semibold ${video.isCompleted ? "text-emerald-500 line-through" : "text-slate-700"}`}>{video.title}</p>
@@ -2118,7 +2256,7 @@ export function WorkspaceShell({ activeModule = "all" }: WorkspaceShellProps) {
               </button>
             </div>
           ))}
-          {filteredVideos.length === 0 ? (
+          {!moduleLoading.videos && filteredVideos.length === 0 ? (
             <div className="empty-state md:col-span-2">
               <div className="empty-illustration"><Youtube className="h-6 w-6" /></div>
               <p className="text-sm font-semibold text-slate-700">No videos in this view</p>
@@ -2187,7 +2325,8 @@ export function WorkspaceShell({ activeModule = "all" }: WorkspaceShellProps) {
           ))}
         </div>
         <div className="mt-4 grid gap-2 md:grid-cols-2">
-          {sortedFiles.map((item) => (
+          {moduleLoading.files ? renderModuleSkeleton(4) : null}
+          {!moduleLoading.files && sortedFiles.map((item) => (
             <div key={item.id} className="saved-card">
               <div className="flex items-center justify-between gap-2">
                 <p className={`text-xs font-semibold ${item.isCompleted ? "text-emerald-500 line-through" : "text-slate-700"}`}>{item.name}</p>
@@ -2219,7 +2358,7 @@ export function WorkspaceShell({ activeModule = "all" }: WorkspaceShellProps) {
               </button>
             </div>
           ))}
-          {sortedFiles.length === 0 ? (
+          {!moduleLoading.files && sortedFiles.length === 0 ? (
             <div className="empty-state md:col-span-2">
               <div className="empty-illustration"><FileStack className="h-6 w-6" /></div>
               <p className="text-sm font-semibold text-slate-700">No files saved yet</p>
@@ -2257,7 +2396,8 @@ export function WorkspaceShell({ activeModule = "all" }: WorkspaceShellProps) {
           <span className="chip">Files: {searchCounts.file ?? 0}</span>
         </div>
         <div className="mt-3 grid gap-2 md:grid-cols-2">
-          {searchResults.slice(0, 12).map((item) => (
+          {moduleLoading.search ? renderModuleSkeleton(4) : null}
+          {!moduleLoading.search && searchResults.slice(0, 12).map((item) => (
             <div key={`${item.kind}-${item.id}`} className="rounded-lg border border-white/10 bg-slate-900/60 p-3">
               <p className="text-[10px] uppercase tracking-[0.16em] text-cyan-200">{item.kind}</p>
               <p className="text-xs font-semibold text-slate-700">{item.title}</p>
@@ -2265,7 +2405,7 @@ export function WorkspaceShell({ activeModule = "all" }: WorkspaceShellProps) {
             </div>
           ))}
         </div>
-        {!searchLoading && searchQuery.trim() && searchResults.length === 0 ? (
+        {!searchLoading && !moduleLoading.search && searchQuery.trim() && searchResults.length === 0 ? (
           <p className="mt-3 text-xs text-slate-400">No results found. Try different keywords or switch to All.</p>
         ) : null}
       </CollapsibleCard>
@@ -2286,7 +2426,7 @@ export function WorkspaceShell({ activeModule = "all" }: WorkspaceShellProps) {
             <p>{focusWarning}</p>
           </div>
         ) : null}
-        <div className="mt-3 flex gap-2">
+        <div className="mt-3 flex flex-wrap gap-2">
           <button className="btn-primary px-4 py-2 text-sm" onClick={toggleTimer}>
             {timerRunning ? "Pause" : "Start"}
           </button>
@@ -2308,30 +2448,48 @@ export function WorkspaceShell({ activeModule = "all" }: WorkspaceShellProps) {
             Start Break
           </button>
         </div>
-        <div className="mt-3 rounded-2xl border border-white/15 bg-slate-950/70 p-4 text-center">
-          <p className="text-4xl font-black text-slate-700">{timerLabel}</p>
-          <p className="text-xs uppercase tracking-[0.16em] text-cyan-200">Phase: {timerPhase}</p>
-          <p className="mt-1 inline-flex items-center gap-1 text-xs text-slate-500">
-            <Lock className="h-3.5 w-3.5" />
-            Lock left: {Math.max(0, Math.floor(focusLockRemainingSec / 60))}:{String(Math.max(0, focusLockRemainingSec % 60)).padStart(2, "0")}
-          </p>
-          <p className={`text-xs ${focusLimitReached ? "text-red-500" : "text-slate-500"}`}>
-            Today {focusUsedMinutes}/{screenLimitMin} min
-          </p>
-          <p className="text-xs text-cyan-200">
-            Streak: {studyStreak.days} day{studyStreak.days === 1 ? "" : "s"}
-            {studyStreak.lastDay ? ` (last: ${toLabel(studyStreak.lastDay)})` : ""}
-          </p>
+        <div className="mt-4 grid gap-4 lg:grid-cols-[280px_1fr]">
+          <div className="focus-ring-panel">
+            <div className="progress-ring progress-ring-lg" style={{ ["--progress" as string]: `${timerProgress}%` }}>
+              <div className="progress-ring-inner">
+                <span>{timerLabel}</span>
+              </div>
+            </div>
+            <p className="mt-3 text-xs uppercase tracking-[0.16em] text-cyan-200">Phase: {timerPhase}</p>
+            <div className="mt-3 flex flex-wrap justify-center gap-2">
+              <button className={`chip ${timerPhase === "work" ? "chip-active" : ""}`} onClick={() => { setTimerPhase("work"); setTimerSeconds(pomodoroMin * 60); }}>Focus {pomodoroMin}m</button>
+              <button className="chip" onClick={() => { setTimerPhase("break"); setBreakMin(5); setTimerSeconds(5 * 60); }}>Short 5m</button>
+              <button className="chip" onClick={() => { setTimerPhase("break"); setBreakMin(15); setTimerSeconds(15 * 60); }}>Long 15m</button>
+            </div>
+          </div>
+          <div className="space-y-3 rounded-2xl border border-white/10 bg-slate-950/50 p-4">
+            <p className="inline-flex items-center gap-1 text-xs text-slate-400">
+              <Lock className="h-3.5 w-3.5" />
+              Lock left: {Math.max(0, Math.floor(focusLockRemainingSec / 60))}:{String(Math.max(0, focusLockRemainingSec % 60)).padStart(2, "0")}
+            </p>
+            <p className={`text-xs ${focusLimitReached ? "text-red-500" : "text-slate-400"}`}>
+              Today {focusUsedMinutes}/{screenLimitMin} min
+            </p>
+            <p className="text-xs text-cyan-200">
+              Streak: {studyStreak.days} day{studyStreak.days === 1 ? "" : "s"}
+              {studyStreak.lastDay ? ` (last: ${toLabel(studyStreak.lastDay)})` : ""}
+            </p>
+            <div className="flex gap-1">
+              {Array.from({ length: 7 }).map((_, index) => (
+                <span key={index} className={`session-dot ${index < Math.min(studyStreak.days, 7) ? "session-dot-active" : ""}`} />
+              ))}
+            </div>
+            <div className="grid gap-2">
+              {focusSessions.slice(0, 5).map((session) => (
+                <div key={session.id} className="rounded-lg border border-white/10 bg-slate-900/60 p-2">
+                  <p className="text-xs text-slate-700">{session.durationMin} min focus / {session.breakMin} min break</p>
+                  <p className="text-[11px] text-slate-400">Started: {toLabel(session.startedAt)}</p>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
         <p className="mt-2 text-xs text-slate-400">Sessions today: {focusSessions.length}</p>
-        <div className="mt-3 grid gap-2">
-          {focusSessions.slice(0, 5).map((session) => (
-            <div key={session.id} className="rounded-lg border border-white/10 bg-slate-900/60 p-2">
-              <p className="text-xs text-slate-700">{session.durationMin} min focus / {session.breakMin} min break</p>
-              <p className="text-[11px] text-slate-400">Started: {toLabel(session.startedAt)}</p>
-            </div>
-          ))}
-        </div>
       </CollapsibleCard>
       ) : null}
 

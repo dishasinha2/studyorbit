@@ -6,6 +6,8 @@ import { getUserFromRequest } from "@/lib/route-auth";
 const schema = z.object({
   isPinned: z.boolean().optional(),
   content: z.string().max(600).optional(),
+  posX: z.number().optional(),
+  posY: z.number().optional(),
 });
 
 type Ctx = { params: Promise<{ id: string }> };

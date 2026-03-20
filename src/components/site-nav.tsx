@@ -16,8 +16,8 @@ export function SiteNav({ active }: SiteNavProps) {
           <span className="icon-badge h-10 w-10 rounded-2xl">
             <span className="text-sm font-black tracking-[0.18em]">SO</span>
           </span>
-          <p className="text-xs uppercase tracking-[0.25em] text-cyan-500">StudyOrbit</p>
-          <p className="text-sm text-slate-500">Study workspace</p>
+          <p className="text-xs uppercase tracking-[0.25em] text-cyan-400">StudyOrbit</p>
+          <p className="text-sm text-zinc-400">Study workspace</p>
         </div>
         <nav className="flex flex-wrap items-center gap-2 text-xs">
           <Link href="/" className={navClass(active === "intro")}>Intro</Link>

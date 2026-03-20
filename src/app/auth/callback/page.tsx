@@ -49,6 +49,28 @@ function AuthCallbackContent() {
         return;
       }
 
+      if (typeof window !== "undefined" && window.location.hash) {
+        const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+        const accessToken = hashParams.get("access_token");
+        const refreshToken = hashParams.get("refresh_token");
+
+        if (accessToken && refreshToken) {
+          const { error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+          });
+          if (!alive) return;
+
+          if (error) {
+            setErrorMessage(humanizeAuthError(error.message || "Unable to complete login from email link."));
+            return;
+          }
+
+          router.replace(next);
+          return;
+        }
+      }
+
       if (code) {
         const { error } = await supabase.auth.exchangeCodeForSession(code);
         if (!alive) return;
@@ -78,7 +100,7 @@ function AuthCallbackContent() {
         return;
       }
 
-      setErrorMessage("This sign-in link is incomplete. Request a new login email.");
+      setErrorMessage("This sign-in link could not be verified. Request a new login email.");
     }
 
     void run();

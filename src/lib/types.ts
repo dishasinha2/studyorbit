@@ -42,6 +42,8 @@ export type StickyNote = {
   content: string;
   color: string;
   isPinned: boolean;
+  posX: number;
+  posY: number;
   updatedAt: string;
 };
 

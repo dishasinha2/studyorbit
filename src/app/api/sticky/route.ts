@@ -6,6 +6,8 @@ import { getUserFromRequest } from "@/lib/route-auth";
 const schema = z.object({
   content: z.string().min(1).max(600),
   color: z.string().optional(),
+  posX: z.number().optional(),
+  posY: z.number().optional(),
 });
 
 export async function GET(req: NextRequest) {
@@ -29,6 +31,8 @@ export async function POST(req: NextRequest) {
       userId: user.id,
       content: parsed.data.content,
       color: parsed.data.color ?? "#fef08a",
+      posX: parsed.data.posX ?? 0,
+      posY: parsed.data.posY ?? 0,
     },
   });
 

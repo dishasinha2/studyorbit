@@ -38,15 +38,15 @@ export default function DashboardPage() {
               <Link href="/auth" className="btn-secondary px-5 py-2.5 text-sm">Switch Account</Link>
             </div>
             <div className="mt-8 grid gap-3 md:grid-cols-3">
-              <div className="metric-tile">
+              <div className="metric-tile stagger-in">
                 <div className="sub-title"><Clock3 className="h-3.5 w-3.5" /> Flow</div>
                 <p className="mt-2 text-lg font-semibold text-slate-700">Intro - Login - Dashboard - Workspace</p>
               </div>
-              <div className="metric-tile">
+              <div className="metric-tile stagger-in">
                 <div className="sub-title"><FileStack className="h-3.5 w-3.5" /> Core tools</div>
                 <p className="mt-2 text-lg font-semibold text-slate-700">Files - Notes - Links - Tasks - Focus</p>
               </div>
-              <div className="metric-tile">
+              <div className="metric-tile stagger-in">
                 <div className="sub-title"><Flame className="h-3.5 w-3.5" /> Focus mode</div>
                 <p className="mt-2 text-lg font-semibold text-slate-700">Focus - Break - Repeat</p>
               </div>
@@ -56,13 +56,13 @@ export default function DashboardPage() {
           <aside className="panel shell-frame dashboard-span-4 p-6">
             <p className="text-xs uppercase tracking-[0.24em] text-cyan-500">Quick Start</p>
             <div className="mt-4 space-y-3">
-              <Link href="/workspace?module=dashboard" className="feature-card-strong block">
+              <Link href="/workspace?module=dashboard" className="feature-card-strong block stagger-in">
                 <h2 className="text-lg font-semibold text-slate-700">Start today&apos;s plan</h2>
               </Link>
-              <Link href="/workspace?module=files" className="feature-card-strong block">
+              <Link href="/workspace?module=files" className="feature-card-strong block stagger-in">
                 <h2 className="text-lg font-semibold text-slate-700">Continue a file</h2>
               </Link>
-              <Link href="/workspace?module=focus-lab" className="feature-card-strong block">
+              <Link href="/workspace?module=focus-lab" className="feature-card-strong block stagger-in">
                 <h2 className="text-lg font-semibold text-slate-700">Start a focus session</h2>
               </Link>
             </div>
@@ -80,7 +80,7 @@ export default function DashboardPage() {
           <div className="soft-divider my-5" />
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             {modules.map((module) => (
-              <Link key={module.title} href={module.href} className="feature-card-strong hover-lift">
+              <Link key={module.title} href={module.href} className="feature-card-strong hover-lift stagger-in">
                 <span className="icon-badge">
                   <module.icon className="h-5 w-5" />
                 </span>

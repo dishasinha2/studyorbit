@@ -185,7 +185,7 @@ export default function AuthPage() {
           <header className="panel-strong hero-panel p-6">
             <p className="section-kicker">Secure Access</p>
             <h1 className="hero-title mt-2 text-3xl font-black tracking-tight">Login / Sign Up</h1>
-            <p className="hero-lead mt-2 text-sm">Use one-click magic link for fast and secure sign-in.</p>
+            <p className="hero-lead mt-2 text-sm">Use the email login link for sign-in. OTP works only if your Supabase email template is configured for codes.</p>
           </header>
 
           <section className="panel p-6">
@@ -263,6 +263,11 @@ export default function AuthPage() {
             {demoMode ? (
               <p className="mt-3 text-xs text-cyan-600">
                 Demo mode active: Supabase keys are not set. Login/signup will continue locally.
+              </p>
+            ) : null}
+            {!demoMode ? (
+              <p className="mt-3 text-xs text-slate-500">
+                If email code does not arrive, use the login link email instead and make sure Supabase redirect URLs include <span className="font-medium">/auth/callback</span>.
               </p>
             ) : null}
             {message ? <p className="mt-3 text-sm text-emerald-600">{message}</p> : null}
