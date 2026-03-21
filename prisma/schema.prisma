@@ -26,6 +26,10 @@ model UserProfile {
   id             String         @id @default(cuid())
   authId         String         @unique
   name           String?
+  avatarUrl      String?
+  themePreference String       @default("pastel")
+  studyGoalMin   Int           @default(120)
+  focusSessionMin Int          @default(25)
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
   projects       Project[]

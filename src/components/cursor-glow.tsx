@@ -4,38 +4,33 @@ import { useEffect, useState } from "react";
 import { motion, useSpring } from "framer-motion";
 
 export function CursorGlow() {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isVisible, setIsVisible] = useState(false);
   const [mounted, setMounted] = useState(false);
+
+  const springConfig = { damping: 28, stiffness: 180, mass: 0.6 };
+  const cursorX = useSpring(0, springConfig);
+  const cursorY = useSpring(0, springConfig);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Use springs for smooth following
-  const springConfig = { damping: 25, stiffness: 150, mass: 0.5 };
-  const cursorX = useSpring(mousePosition.x, springConfig);
-  const cursorY = useSpring(mousePosition.y, springConfig);
-
   useEffect(() => {
-    const updateMousePosition = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
-      cursorX.set(e.clientX - 200); // 200 is half the width/height of the glow
-      cursorY.set(e.clientY - 200);   
+    const update = (e: MouseEvent) => {
+      cursorX.set(e.clientX - 220);
+      cursorY.set(e.clientY - 220);
       if (!isVisible) setIsVisible(true);
     };
+    const hide = () => setIsVisible(false);
+    const show = () => setIsVisible(true);
 
-    const handleMouseLeave = () => setIsVisible(false);
-    const handleMouseEnter = () => setIsVisible(true);
-
-    window.addEventListener("mousemove", updateMousePosition);
-    document.body.addEventListener("mouseleave", handleMouseLeave);
-    document.body.addEventListener("mouseenter", handleMouseEnter);
-
+    window.addEventListener("mousemove", update);
+    document.body.addEventListener("mouseleave", hide);
+    document.body.addEventListener("mouseenter", show);
     return () => {
-      window.removeEventListener("mousemove", updateMousePosition);
-      document.body.removeEventListener("mouseleave", handleMouseLeave);
-      document.body.removeEventListener("mouseenter", handleMouseEnter);
+      window.removeEventListener("mousemove", update);
+      document.body.removeEventListener("mouseleave", hide);
+      document.body.removeEventListener("mouseenter", show);
     };
   }, [cursorX, cursorY, isVisible]);
 
@@ -43,17 +38,18 @@ export function CursorGlow() {
 
   return (
     <motion.div
-      className="pointer-events-none fixed inset-0 z-0 h-[400px] w-[400px] rounded-full opacity-0 mix-blend-screen will-change-transform"
+      className="pointer-events-none fixed z-0 rounded-full will-change-transform"
       style={{
         x: cursorX,
         y: cursorY,
-        background: "radial-gradient(circle, rgba(95, 187, 230, 0.12) 0%, transparent 70%)",
-        filter: "blur(40px)",
+        width: 440,
+        height: 440,
+        background:
+          "radial-gradient(circle, rgba(99,102,241,0.09) 0%, rgba(139,92,246,0.06) 40%, transparent 70%)",
+        filter: "blur(36px)",
       }}
-      animate={{
-        opacity: isVisible ? 1 : 0,
-      }}
-      transition={{ duration: 0.5 }}
+      animate={{ opacity: isVisible ? 1 : 0 }}
+      transition={{ duration: 0.55 }}
     />
   );
 }

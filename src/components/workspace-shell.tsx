@@ -95,6 +95,12 @@ type ModuleLoadingState = {
   search: boolean;
 };
 
+type ProfilePreferences = {
+  themePreference: "pastel" | "light";
+  studyGoalMin: number;
+  focusSessionMin: number;
+};
+
 export function WorkspaceShell({ activeModule = "all", onCountsChange }: WorkspaceShellProps) {
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
   const [mounted, setMounted] = useState(false);
@@ -115,6 +121,11 @@ export function WorkspaceShell({ activeModule = "all", onCountsChange }: Workspa
   const [files, setFiles] = useState<FileItem[]>([]);
   const [focusSessions, setFocusSessions] = useState<FocusSession[]>([]);
   const [focusUsedMinutes, setFocusUsedMinutes] = useState(0);
+  const [profilePrefs, setProfilePrefs] = useState<ProfilePreferences>({
+    themePreference: "pastel",
+    studyGoalMin: 120,
+    focusSessionMin: 25,
+  });
   const [searchQuery, setSearchQuery] = useState("");
   const [searchKind, setSearchKind] = useState("all");
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
@@ -171,6 +182,7 @@ export function WorkspaceShell({ activeModule = "all", onCountsChange }: Workspa
   const [fileSort, setFileSort] = useState<"new" | "old" | "az" | "za">("new");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploadingFile, setUploadingFile] = useState(false);
+  const [fileNotice, setFileNotice] = useState<string | null>(null);
   const [videoView, setVideoView] = useState<"all" | "pending" | "completed">("all");
   const [taskStatusFilter, setTaskStatusFilter] = useState<"all" | "pending" | "in-progress" | "completed">("all");
   const [noteTitle, setNoteTitle] = useState("");
@@ -235,6 +247,10 @@ export function WorkspaceShell({ activeModule = "all", onCountsChange }: Workspa
     const pctVideos = totalVideos ? Math.round((completedVideos / totalVideos) * 100) : 0;
     return { completedTasks, totalTasks, completedVideos, totalVideos, pctTasks, pctVideos };
   }, [studyTasks, videos]);
+  const studyGoalProgress = useMemo(
+    () => Math.min(100, Math.round((focusUsedMinutes / Math.max(profilePrefs.studyGoalMin, 1)) * 100)),
+    [focusUsedMinutes, profilePrefs.studyGoalMin],
+  );
   const studyStreak = useMemo(() => {
     if (!focusSessions.length) return { days: 0, lastDay: null as string | null };
     const daySet = new Set(
@@ -564,7 +580,7 @@ export function WorkspaceShell({ activeModule = "all", onCountsChange }: Workspa
       videos: moduleNeeds.videos,
       files: moduleNeeds.files,
     }));
-    const [brief, e, s, f, n, t, l, b, v, fi] = await Promise.all([
+    const [brief, e, s, f, n, t, l, b, v, fi, p] = await Promise.all([
       moduleNeeds.brief ? fetchJson("/api/daily-brief", { headers: authHeaders }) : Promise.resolve(undefined),
       moduleNeeds.events ? fetchJson("/api/events", { headers: authHeaders }) : Promise.resolve(undefined),
       moduleNeeds.stickies ? fetchJson("/api/sticky", { headers: authHeaders }) : Promise.resolve(undefined),
@@ -575,6 +591,7 @@ export function WorkspaceShell({ activeModule = "all", onCountsChange }: Workspa
       moduleNeeds.boards ? fetchJson("/api/whiteboards", { headers: authHeaders }) : Promise.resolve(undefined),
       moduleNeeds.videos ? fetchJson("/api/videos", { headers: authHeaders }) : Promise.resolve(undefined),
       moduleNeeds.files ? fetchJson("/api/files", { headers: authHeaders }) : Promise.resolve(undefined),
+      fetchJson("/api/profile", { headers: authHeaders }),
     ]);
     if (moduleNeeds.brief) setDailyBrief(brief ?? null);
     if (moduleNeeds.events) setEvents(e?.events ?? []);
@@ -589,6 +606,18 @@ export function WorkspaceShell({ activeModule = "all", onCountsChange }: Workspa
     if (moduleNeeds.boards) setBoards(b?.boards ?? []);
     if (moduleNeeds.videos) setVideos(v?.videos ?? []);
     if (moduleNeeds.files) setFiles(fi?.files ?? []);
+    if (p?.profile?.preferences) {
+      const nextPrefs = {
+        themePreference: p.profile.preferences.themePreference === "light" ? "light" : "pastel",
+        studyGoalMin: p.profile.preferences.studyGoalMin ?? 120,
+        focusSessionMin: p.profile.preferences.focusSessionMin ?? 25,
+      } as ProfilePreferences;
+      setProfilePrefs(nextPrefs);
+      setPomodoroMin(nextPrefs.focusSessionMin);
+      if (timerPhase === "work" && !timerRunning) {
+        setTimerSeconds(nextPrefs.focusSessionMin * 60);
+      }
+    }
     setModuleLoading((prev) => ({
       ...prev,
       brief: false,
@@ -1103,36 +1132,58 @@ export function WorkspaceShell({ activeModule = "all", onCountsChange }: Workspa
     const pathOrUrl = filePath.trim();
     if (!name || (!pathOrUrl && !selectedFile)) return;
     if (!canProceedWithText(`${name}\n${pathOrUrl || selectedFile?.name || ""}\n${fileTags}`, "file")) return;
+    setFileNotice(null);
 
     if (selectedFile) {
       setUploadingFile(true);
       try {
-        const formData = new FormData();
-        formData.append("file", selectedFile);
-        formData.append("name", name);
-        formData.append("pathOrUrl", pathOrUrl || selectedFile.name);
-        if (fileCategory.trim()) formData.append("category", fileCategory.trim());
-        if (fileSubject.trim()) formData.append("subject", fileSubject.trim());
-        if (fileTags.trim()) formData.append("tags", fileTags.trim());
-        if (fileLastPosition.trim()) formData.append("lastPosition", fileLastPosition.trim());
-        if (fileProgressNote.trim()) formData.append("progressNote", fileProgressNote.trim());
+        const fallbackToMetadataSave = async (reason?: string) => {
+          const fallbackSaved = await post("/api/files", {
+            name,
+            pathOrUrl: pathOrUrl || selectedFile.name,
+            category: fileCategory.trim() || undefined,
+            subject: fileSubject.trim() || undefined,
+            tags: fileTags.trim() || undefined,
+            lastPosition: fileLastPosition.trim() || undefined,
+            progressNote: fileProgressNote.trim() || undefined,
+          });
+          if (fallbackSaved) {
+            setFileNotice(reason ?? "File metadata saved. Direct binary upload was skipped in this environment.");
+          }
+          return fallbackSaved;
+        };
 
-        const res = await fetch("/api/files", {
-          method: "POST",
-          headers: { ...authHeaders },
-          body: formData,
-        });
-        const json = await res.json();
-        if (!res.ok) {
-          setFocusWarning(json?.error ?? "Failed to save file.");
-          return;
+        if (selectedFile.size > 4 * 1024 * 1024) {
+          await fallbackToMetadataSave("Large files are saved as metadata in the deployed app. Add the file link/path if you need direct open support.");
+        } else {
+          const formData = new FormData();
+          formData.append("file", selectedFile);
+          formData.append("name", name);
+          formData.append("pathOrUrl", pathOrUrl || selectedFile.name);
+          if (fileCategory.trim()) formData.append("category", fileCategory.trim());
+          if (fileSubject.trim()) formData.append("subject", fileSubject.trim());
+          if (fileTags.trim()) formData.append("tags", fileTags.trim());
+          if (fileLastPosition.trim()) formData.append("lastPosition", fileLastPosition.trim());
+          if (fileProgressNote.trim()) formData.append("progressNote", fileProgressNote.trim());
+
+          const res = await fetch("/api/files", {
+            method: "POST",
+            headers: { ...authHeaders },
+            body: formData,
+          });
+          const json = await res.json().catch(() => null);
+          if (!res.ok) {
+            await fallbackToMetadataSave(json?.error ?? "Binary upload failed, saved file details only.");
+            return;
+          }
+          setFiles((current) => [json.file, ...current]);
+          setFileNotice("File saved successfully.");
         }
-        await loadData();
       } finally {
         setUploadingFile(false);
       }
     } else {
-      await post("/api/files", {
+      const ok = await post("/api/files", {
         name,
         pathOrUrl,
         category: fileCategory.trim() || undefined,
@@ -1141,6 +1192,7 @@ export function WorkspaceShell({ activeModule = "all", onCountsChange }: Workspa
         lastPosition: fileLastPosition.trim() || undefined,
         progressNote: fileProgressNote.trim() || undefined,
       });
+      if (ok) setFileNotice("File link saved successfully.");
     }
 
     setFileName("");
@@ -1469,10 +1521,10 @@ export function WorkspaceShell({ activeModule = "all", onCountsChange }: Workspa
         </div>
         <div className="workspace-metric-card">
           <span className="workspace-metric-accent workspace-metric-accent-cyan" />
-          <h3 className="sub-title"><Timer className="h-3.5 w-3.5" /> Focus hours</h3>
+          <h3 className="sub-title"><Timer className="h-3.5 w-3.5" /> Study goal</h3>
           <p className="text-3xl font-black text-slate-50">{(focusUsedMinutes / 60).toFixed(1)}h</p>
-          <div className="progress-track"><div className="progress-fill" style={{ width: `${Math.min(100, (focusUsedMinutes / Math.max(screenLimitMin, 1)) * 100)}%` }} /></div>
-          <p className="text-xs text-slate-400">{focusUsedMinutes}/{screenLimitMin} minutes used today</p>
+          <div className="progress-track"><div className="progress-fill" style={{ width: `${studyGoalProgress}%` }} /></div>
+          <p className="text-xs text-slate-400">{focusUsedMinutes}/{profilePrefs.studyGoalMin} minutes toward daily goal</p>
         </div>
         <div className="workspace-metric-card">
           <span className="workspace-metric-accent workspace-metric-accent-emerald" />
@@ -2299,6 +2351,7 @@ export function WorkspaceShell({ activeModule = "all", onCountsChange }: Workspa
           </button>
         </div>
         {selectedFile ? <p className="mt-1 text-xs text-cyan-200">Selected: {selectedFile.name}</p> : null}
+        {fileNotice ? <p className="mt-2 text-xs text-emerald-300">{fileNotice}</p> : null}
         <div className="mt-2 grid gap-2 md:grid-cols-3">
           <input className="input" placeholder="Category (optional)" value={fileCategory} onChange={(e) => setFileCategory(e.target.value)} />
           <input className="input" placeholder="Subject (e.g., Physics)" value={fileSubject} onChange={(e) => setFileSubject(e.target.value)} />
@@ -2473,7 +2526,7 @@ export function WorkspaceShell({ activeModule = "all", onCountsChange }: Workspa
               Lock left: {Math.max(0, Math.floor(focusLockRemainingSec / 60))}:{String(Math.max(0, focusLockRemainingSec % 60)).padStart(2, "0")}
             </p>
             <p className={`text-xs ${focusLimitReached ? "text-red-500" : "text-slate-400"}`}>
-              Today {focusUsedMinutes}/{screenLimitMin} min
+              Goal {focusUsedMinutes}/{profilePrefs.studyGoalMin} min
             </p>
             <p className="text-xs text-cyan-200">
               Streak: {studyStreak.days} day{studyStreak.days === 1 ? "" : "s"}

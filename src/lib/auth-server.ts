@@ -3,6 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 
 export type AuthContext = {
   authId: string;
+  email?: string | null;
 };
 
 function readBearer(req: NextRequest) {
@@ -23,13 +24,13 @@ export async function getAuthContext(req: NextRequest): Promise<AuthContext | nu
     const supabase = createClient(url, anon);
     const { data, error } = await supabase.auth.getUser(token);
     if (!error && data.user?.id) {
-      return { authId: data.user.id };
+      return { authId: data.user.id, email: data.user.email };
     }
   }
 
   const demoUser = req.headers.get("x-user-id");
   if (demoUser) {
-    return { authId: demoUser };
+    return { authId: demoUser, email: null };
   }
 
   return null;

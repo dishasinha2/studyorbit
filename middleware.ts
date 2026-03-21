@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { ACCESS_TOKEN_COOKIE } from "@/lib/auth-cookie";
 
-const PROTECTED_PREFIXES = ["/dashboard", "/workspace"];
+const PROTECTED_PREFIXES = ["/dashboard", "/workspace", "/profile"];
 
 async function verifySupabaseAccessToken(token: string) {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -38,5 +38,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/workspace/:path*"],
+  matcher: ["/dashboard/:path*", "/workspace/:path*", "/profile/:path*"],
 };

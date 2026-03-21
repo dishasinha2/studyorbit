@@ -92,3 +92,39 @@ export type FocusSession = {
   startedAt: string;
   endedAt: string | null;
 };
+
+export type UserProfileSummary = {
+  id: string;
+  name: string | null;
+  email: string | null;
+  avatarUrl?: string | null;
+  preferences?: {
+    themePreference: string;
+    studyGoalMin: number;
+    focusSessionMin: number;
+  };
+  createdAt: string;
+  stats: {
+    tasks: number;
+    completedTasks: number;
+    notes: number;
+    links: number;
+    files: number;
+    videos: number;
+    stickies: number;
+    focusSessions: number;
+    focusMinutes: number;
+    projects: number;
+  };
+  recentActivity?: Array<{
+    id: string;
+    kind: "task" | "note" | "link" | "file" | "video" | "sticky" | "focus";
+    title: string;
+    detail: string;
+    at: string;
+  }>;
+  focusTrend?: Array<{
+    day: string;
+    minutes: number;
+  }>;
+};

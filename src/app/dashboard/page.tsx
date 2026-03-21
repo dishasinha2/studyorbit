@@ -3,6 +3,8 @@ import { ArrowRight, CalendarCheck, Clock3, FileStack, Flame, Link2, PenSquare, 
 import { AppSurface } from "@/components/app-surface";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteNav } from "@/components/site-nav";
+import { StudyGoalCard } from "@/components/study-goal-card";
+import { UserProfilePanel } from "@/components/user-profile-panel";
 
 const modules = [
   { href: "/workspace?module=dashboard", title: "Task Schedule", icon: CalendarCheck },
@@ -21,51 +23,69 @@ export default function DashboardPage() {
 
         <section className="dashboard-grid">
           <section className="panel-strong shell-frame hero-panel dashboard-span-8 overflow-hidden p-8 md:p-10">
-            <p className="section-kicker">
-              <Sparkles className="h-3.5 w-3.5" />
-              User Dashboard
-            </p>
-            <h1 className="hero-title mt-3 max-w-3xl text-3xl font-black leading-tight md:text-5xl">
-              Your study tools. One dashboard.
-            </h1>
-            <p className="hero-lead mt-3 text-base">
-              Open the exact tool you need and continue work without scrolling through a crowded page.
-            </p>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <Link href="/workspace?module=dashboard" className="btn-primary inline-flex items-center gap-2 px-5 py-2.5 text-sm">
-                Open Workspace <ArrowRight className="h-4 w-4" />
-              </Link>
-              <Link href="/auth" className="btn-secondary px-5 py-2.5 text-sm">Switch Account</Link>
-            </div>
-            <div className="mt-8 grid gap-3 md:grid-cols-3">
-              <div className="metric-tile stagger-in">
-                <div className="sub-title"><Clock3 className="h-3.5 w-3.5" /> Flow</div>
-                <p className="mt-2 text-lg font-semibold text-slate-700">Intro - Login - Dashboard - Workspace</p>
+            <div className="grid gap-8 xl:grid-cols-[1.2fr_0.8fr]">
+              <div>
+                <p className="section-kicker">
+                  <Sparkles className="h-3.5 w-3.5" />
+                  User Dashboard
+                </p>
+                <h1 className="hero-title mt-3 max-w-3xl text-3xl font-black leading-tight md:text-5xl">
+                  Your study tools. One dashboard.
+                </h1>
+                <p className="hero-lead mt-3 text-base">
+                  Open the exact tool you need and continue work without scrolling through a crowded page.
+                </p>
+                <div className="mt-6 flex flex-wrap gap-3">
+                  <Link href="/workspace?module=dashboard" className="btn-primary inline-flex items-center gap-2 px-5 py-2.5 text-sm">
+                    Open Workspace <ArrowRight className="h-4 w-4" />
+                  </Link>
+                  <Link href="/profile" className="btn-secondary px-5 py-2.5 text-sm">View Profile</Link>
+                  <Link href="/auth" className="btn-secondary px-5 py-2.5 text-sm">Switch Account</Link>
+                </div>
+                <div className="mt-8 grid gap-3 md:grid-cols-3">
+                  <div className="metric-tile stagger-in">
+                    <div className="sub-title"><Clock3 className="h-3.5 w-3.5" /> Flow</div>
+                    <p className="mt-2 text-lg font-semibold text-slate-700">Intro - Login - Dashboard - Workspace</p>
+                  </div>
+                  <div className="metric-tile stagger-in">
+                    <div className="sub-title"><FileStack className="h-3.5 w-3.5" /> Core tools</div>
+                    <p className="mt-2 text-lg font-semibold text-slate-700">Files - Notes - Links - Tasks - Focus</p>
+                  </div>
+                  <div className="metric-tile stagger-in">
+                    <div className="sub-title"><Flame className="h-3.5 w-3.5" /> Focus mode</div>
+                    <p className="mt-2 text-lg font-semibold text-slate-700">Focus - Break - Repeat</p>
+                  </div>
+                </div>
               </div>
-              <div className="metric-tile stagger-in">
-                <div className="sub-title"><FileStack className="h-3.5 w-3.5" /> Core tools</div>
-                <p className="mt-2 text-lg font-semibold text-slate-700">Files - Notes - Links - Tasks - Focus</p>
-              </div>
-              <div className="metric-tile stagger-in">
-                <div className="sub-title"><Flame className="h-3.5 w-3.5" /> Focus mode</div>
-                <p className="mt-2 text-lg font-semibold text-slate-700">Focus - Break - Repeat</p>
+
+              <div className="space-y-4">
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <StudyGoalCard />
+                  <div className="hero-metric">
+                    <p className="hero-metric-value">Move</p>
+                    <p className="hero-metric-label">Jump into the next tool without visual clutter.</p>
+                  </div>
+                </div>
               </div>
             </div>
           </section>
 
-          <aside className="panel shell-frame dashboard-span-4 p-6">
-            <p className="text-xs uppercase tracking-[0.24em] text-cyan-500">Quick Start</p>
-            <div className="mt-4 space-y-3">
-              <Link href="/workspace?module=dashboard" className="feature-card-strong block stagger-in">
-                <h2 className="text-lg font-semibold text-slate-700">Start today&apos;s plan</h2>
-              </Link>
-              <Link href="/workspace?module=files" className="feature-card-strong block stagger-in">
-                <h2 className="text-lg font-semibold text-slate-700">Continue a file</h2>
-              </Link>
-              <Link href="/workspace?module=focus-lab" className="feature-card-strong block stagger-in">
-                <h2 className="text-lg font-semibold text-slate-700">Start a focus session</h2>
-              </Link>
-            </div>
+          <aside className="dashboard-span-4 space-y-6">
+            <UserProfilePanel />
+            <section className="panel shell-frame p-6">
+              <p className="text-xs uppercase tracking-[0.24em] text-cyan-500">Quick Start</p>
+              <div className="mt-4 space-y-3">
+                <Link href="/workspace?module=dashboard" className="feature-card-strong block stagger-in">
+                  <h2 className="text-lg font-semibold text-slate-700">Start today&apos;s plan</h2>
+                </Link>
+                <Link href="/workspace?module=files" className="feature-card-strong block stagger-in">
+                  <h2 className="text-lg font-semibold text-slate-700">Continue a file</h2>
+                </Link>
+                <Link href="/workspace?module=focus-lab" className="feature-card-strong block stagger-in">
+                  <h2 className="text-lg font-semibold text-slate-700">Start a focus session</h2>
+                </Link>
+              </div>
+            </section>
           </aside>
         </section>
 
