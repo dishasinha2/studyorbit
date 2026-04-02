@@ -1,4 +1,4 @@
-# DLife - Organising Digital Life (Hackathon Project)
+#studyOrbit - Organising Digital Life 
 
 A full-stack Next.js app to unify scattered digital data (notes, links, files, tasks, calendar items, emails) into one context-aware workspace.
 
