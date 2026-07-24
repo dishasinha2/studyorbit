@@ -1,0 +1,6 @@
+{
+  "name": "StudyOrbit",
+  "description": "An AI-powered career guidance workspace for profiles, documents, roadmaps, skills, reminders, and progress tracking.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,295 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+:root {
+  --void: #0A0E27;
+  --void-deep: #060814;
+  --panel: #10143A;
+  --nebula: #8B7FFF;
+  --nebula-soft: #6E63D6;
+  --gold: #FFC857;
+  --coral: #FF8C6B;
+  --mint: #6FE3C1;
+  --ink: #F1EFFF;
+  --ink-dim: #9C97C4;
+  --ink-faint: #6A6690;
+  --line: rgba(241,239,255,0.09);
+  --card: rgba(255,255,255,0.035);
+
+  --font-inter: 'Inter', sans-serif;
+  --font-space: 'Space Grotesk', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  --bg: var(--void);
+  --fg: var(--ink);
+  --accent: var(--nebula);
+}
+
+@theme inline {
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-space);
+  --font-mono: var(--font-mono);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: radial-gradient(ellipse at 15% 0%, #141a44 0%, var(--void) 40%, var(--void-deep) 100%);
+  color: var(--ink);
+  font-family: 'Inter', sans-serif;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+::selection {
+  background: rgba(139, 127, 255, 0.3);
+  color: var(--ink);
+}
+
+/* Brand mark celestial glow */
+.brand-mark {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff, var(--gold) 40%, transparent 70%);
+  box-shadow: 0 0 14px 2px rgba(255, 200, 87, 0.5);
+  display: inline-block;
+}
+
+/* Mini Orbit Animations */
+.mini-orbit {
+  position: relative;
+  width: 76px;
+  height: 76px;
+  margin: 0 auto 14px;
+}
+
+.mini-core {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+}
+
+.mini-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border: 1px dashed var(--line);
+  border-radius: 50%;
+}
+
+.mr-1 {
+  width: 56px;
+  height: 56px;
+  animation: spin 14s linear infinite;
+}
+
+.mr-2 {
+  width: 76px;
+  height: 76px;
+  animation: spin 22s linear infinite reverse;
+}
+
+@keyframes spin {
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+.mini-moon {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+}
+
+.mr-1 .mini-moon {
+  animation: cspin 14s linear infinite;
+}
+
+.mr-2 .mini-moon {
+  animation: cspin 22s linear infinite reverse;
+}
+
+@keyframes cspin {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(-360deg);
+  }
+}
+
+/* Storage Bar */
+.storage-bar {
+  height: 5px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 9px 0;
+  overflow: hidden;
+}
+
+.storage-bar-fill {
+  height: 100%;
+  width: 38%;
+  background: linear-gradient(90deg, var(--nebula), var(--mint));
+  border-radius: 4px;
+}
+
+/* Floating Action Button */
+.fab {
+  position: fixed;
+  bottom: 28px;
+  right: 32px;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--nebula), var(--nebula-soft));
+  border: none;
+  color: #fff;
+  font-size: 22px;
+  font-weight: 400;
+  box-shadow: 0 14px 30px -8px rgba(139, 127, 255, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  z-index: 50;
+}
+
+.fab:hover {
+  transform: scale(1.08) rotate(90deg);
+  box-shadow: 0 18px 36px -8px rgba(139, 127, 255, 0.75);
+}
+
+/* Common panels & cards in celestial void theme */
+.panel {
+  border-radius: 1rem;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--ink);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+}
+
+.panel-strong {
+  border-radius: 1.125rem;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--ink);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+}
+
+.soft-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+}
+
+.btn-primary {
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--nebula), var(--nebula-soft));
+  color: #ffffff;
+  border: 1px solid rgba(139, 127, 255, 0.4);
+  box-shadow: 0 4px 14px rgba(139, 127, 255, 0.3);
+}
+
+.btn-primary:hover {
+  box-shadow: 0 6px 20px rgba(139, 127, 255, 0.45);
+}
+
+.btn-secondary {
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--ink);
+  border: 1px solid var(--line);
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(139, 127, 255, 0.3);
+}
+
+.chip {
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--ink-dim);
+  padding: 0.35rem 0.8rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+}
+
+.input {
+  border-radius: 0.875rem;
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--ink);
+  padding: 0.75rem 0.9rem;
+}
+
+.input::placeholder {
+  color: var(--ink-faint);
+}
+
+.icon-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.5rem;
+  background: rgba(139, 127, 255, 0.15);
+  color: var(--nebula);
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
