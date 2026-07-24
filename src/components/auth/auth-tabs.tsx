@@ -38,7 +38,7 @@ export function AuthTabs({ mode, onChange }: { mode: AuthMode; onChange: (mode: 
               <motion.div
                 layoutId="activeAuthTabIndicator"
                 className="absolute inset-0 z-[-1] rounded-lg bg-[linear-gradient(135deg,var(--gold),#ffdc93)] shadow-[0_4px_14px_rgba(255,200,87,0.3)]"
-                transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
               />
             )}
             {tab.label}

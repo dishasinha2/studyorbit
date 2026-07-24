@@ -8,12 +8,12 @@ import {
   Sparkles,
   Timer,
   Youtube,
-  Zap,
 } from "lucide-react";
 import { AnimatedHero } from "@/components/animated-hero";
 import { AppSurface } from "@/components/app-surface";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteNav } from "@/components/site-nav";
+import { ScrollReveal } from "@/components/scroll-reveal";
 
 const featureGrid = [
   {
@@ -87,7 +87,7 @@ const featureGrid = [
 export default function Home() {
   return (
     <AppSurface>
-      <div className="mx-auto flex max-w-6xl flex-col gap-8">
+      <div className="mx-auto flex max-w-[1200px] flex-col gap-20 sm:gap-28">
         {/* Navigation */}
         <SiteNav active="intro" />
 
@@ -95,7 +95,8 @@ export default function Home() {
         <AnimatedHero />
 
         {/* Bento Feature Grid Section */}
-        <section className="space-y-6 pt-4">
+        <ScrollReveal>
+        <section id="features" className="space-y-8 scroll-mt-28">
           {/* Section Header */}
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-[var(--line)] pb-4">
             <div>
@@ -164,30 +165,7 @@ export default function Home() {
             })}
           </div>
         </section>
-
-        {/* Quick Call to Action Banner */}
-        <section className="relative overflow-hidden rounded-3xl border border-[rgba(255,200,87,0.3)] bg-[radial-gradient(ellipse_at_top,_var(--panel),_var(--void))] p-8 sm:p-10 text-center shadow-2xl">
-          <div className="relative z-10 max-w-2xl mx-auto space-y-4">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--gold)]/30 bg-[var(--gold)]/10 px-3 py-1 text-xs font-mono font-bold text-[var(--gold)]">
-              <Zap className="h-3.5 w-3.5" /> Ready for distraction-free learning?
-            </span>
-            <h2 className="font-['Space_Grotesk'] text-2xl sm:text-4xl font-extrabold text-[var(--ink)]">
-              Launch your personal study orbit today.
-            </h2>
-            <p className="text-sm text-[var(--ink-dim)]">
-              Organize course material, set task reminders, and step into deep work in under 30 seconds.
-            </p>
-            <div className="pt-2 flex flex-wrap justify-center gap-3">
-              <Link
-                href="/dashboard"
-                className="inline-flex items-center gap-2 rounded-full bg-[linear-gradient(135deg,var(--gold),#ffe19c)] px-6 py-3 text-xs font-black text-slate-950 shadow-[0_4px_20px_rgba(255,200,87,0.35)] hover:scale-105 transition-all"
-              >
-                <span>Launch Dashboard</span>
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            </div>
-          </div>
-        </section>
+        </ScrollReveal>
 
         {/* Site Footer */}
         <SiteFooter />

@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { verifyFirebaseIdToken } from "@/lib/auth-server";
 import { ACCESS_TOKEN_COOKIE } from "@/lib/auth-cookie";
 
-const PROTECTED_PREFIXES = ["/dashboard", "/workspace", "/profile", "/ai", "/documents", "/roadmaps", "/skills", "/relax"];
+const PROTECTED_PREFIXES = ["/dashboard", "/workspace", "/profile", "/ai", "/documents", "/roadmaps", "/skills", "/relax", "/focus", "/notifications", "/calendar", "/career", "/settings"];
 
 export async function middleware(req: NextRequest) {
   const { pathname, search } = req.nextUrl;
@@ -29,6 +29,10 @@ export const config = {
     "/roadmaps/:path*",
     "/skills/:path*",
     "/relax/:path*",
+    "/focus/:path*",
+    "/notifications/:path*",
+    "/calendar/:path*",
+    "/career/:path*",
+    "/settings/:path*",
   ],
 };
-

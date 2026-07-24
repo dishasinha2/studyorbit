@@ -70,14 +70,14 @@ export function AuthCard(props: AuthCardProps) {
       initial={reduceMotion ? false : { opacity: 0, y: 18, scale: 0.98 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ duration: 0.5, ease: [0.2, 0.8, 0.2, 1] }}
-      className="card relative w-full max-w-[420px] mx-auto rounded-[20px] border border-[rgba(241,239,255,0.10)] bg-[rgba(18,21,48,0.55)] p-7 sm:p-9 backdrop-blur-[18px] shadow-[0_30px_80px_-20px_rgba(0,0,0,0.6)]"
+      className="card relative mx-auto w-full max-w-[400px] rounded-[24px] border border-[rgba(241,239,255,0.10)] bg-[rgba(18,21,48,0.48)] p-6 backdrop-blur-xl shadow-[0_24px_60px_-28px_rgba(0,0,0,0.65)] sm:p-7"
     >
       {/* Auth Mode Tabs */}
       <AuthTabs mode={mode} onChange={onModeChange} />
 
       {/* Headline */}
-      <div className="mt-6 mb-5 space-y-1">
-        <h2 className="font-['Space_Grotesk'] text-xl sm:text-2xl font-semibold text-[var(--ink)]">
+      <div className="mb-5 mt-5 space-y-1">
+        <h2 className="font-['Space_Grotesk'] text-xl font-semibold text-[var(--ink)]">
           {mode === "signup"
             ? "Start your orbit"
             : mode === "reset"
@@ -102,7 +102,7 @@ export function AuthCard(props: AuthCardProps) {
           e.preventDefault();
           onSubmit();
         }}
-        className="space-y-3.5"
+        className="space-y-3"
       >
         <AnimatePresence mode="wait" initial={false}>
           {/* Full Name field (Signup mode) */}
@@ -128,7 +128,7 @@ export function AuthCard(props: AuthCardProps) {
                 value={name}
                 onChange={(e) => onNameChange(e.target.value)}
                 placeholder="Ananya Sharma"
-                className="w-full rounded-xl border border-[var(--line)] bg-[rgba(255,255,255,0.04)] px-3.5 py-2.5 font-sans text-sm text-[var(--ink)] outline-none placeholder:text-[rgba(156,151,196,0.55)] transition-all focus:border-[var(--nebula)] focus:bg-[rgba(139,127,255,0.05)] focus:shadow-[0_0_0_3px_rgba(139,127,255,0.18)]"
+                className="h-10 w-full rounded-xl border border-[var(--line)] bg-[rgba(255,255,255,0.04)] px-3.5 font-sans text-sm text-[var(--ink)] outline-none placeholder:text-[rgba(156,151,196,0.55)] transition-all duration-200 focus:border-[var(--nebula)] focus:bg-[rgba(139,127,255,0.05)] focus:shadow-[0_0_0_3px_rgba(139,127,255,0.18)]"
               />
             </motion.div>
           )}
@@ -150,7 +150,7 @@ export function AuthCard(props: AuthCardProps) {
             value={email}
             onChange={(e) => onEmailChange(e.target.value)}
             placeholder="you@college.edu"
-            className="w-full rounded-xl border border-[var(--line)] bg-[rgba(255,255,255,0.04)] px-3.5 py-2.5 font-sans text-sm text-[var(--ink)] outline-none placeholder:text-[rgba(156,151,196,0.55)] transition-all focus:border-[var(--nebula)] focus:bg-[rgba(139,127,255,0.05)] focus:shadow-[0_0_0_3px_rgba(139,127,255,0.18)]"
+            className="h-10 w-full rounded-xl border border-[var(--line)] bg-[rgba(255,255,255,0.04)] px-3.5 font-sans text-sm text-[var(--ink)] outline-none placeholder:text-[rgba(156,151,196,0.55)] transition-all duration-200 focus:border-[var(--nebula)] focus:bg-[rgba(139,127,255,0.05)] focus:shadow-[0_0_0_3px_rgba(139,127,255,0.18)]"
           />
         </div>
 
@@ -173,7 +173,7 @@ export function AuthCard(props: AuthCardProps) {
                 value={password}
                 onChange={(e) => onPasswordChange(e.target.value)}
                 placeholder={mode === "signup" ? "Create a password" : "••••••••"}
-                className="w-full rounded-xl border border-[var(--line)] bg-[rgba(255,255,255,0.04)] py-2.5 pl-3.5 pr-10 font-sans text-sm text-[var(--ink)] outline-none placeholder:text-[rgba(156,151,196,0.55)] transition-all focus:border-[var(--nebula)] focus:bg-[rgba(139,127,255,0.05)] focus:shadow-[0_0_0_3px_rgba(139,127,255,0.18)]"
+                className="h-10 w-full rounded-xl border border-[var(--line)] bg-[rgba(255,255,255,0.04)] pl-3.5 pr-10 font-sans text-sm text-[var(--ink)] outline-none placeholder:text-[rgba(156,151,196,0.55)] transition-all duration-200 focus:border-[var(--nebula)] focus:bg-[rgba(139,127,255,0.05)] focus:shadow-[0_0_0_3px_rgba(139,127,255,0.18)]"
               />
               <button
                 type="button"
@@ -220,7 +220,7 @@ export function AuthCard(props: AuthCardProps) {
         <button
           type="submit"
           disabled={submitDisabled}
-          className="submit relative w-full overflow-hidden rounded-xl bg-[linear-gradient(135deg,var(--nebula),#6e5fe0)] py-3 font-['Space_Grotesk'] text-sm font-semibold tracking-[0.01em] text-white shadow-[0_10px_24px_-8px_rgba(139,127,255,0.6)] transition-all hover:-translate-y-0.5 hover:shadow-[0_14px_30px_-8px_rgba(139,127,255,0.75)] active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+          className="submit relative h-10 w-full overflow-hidden rounded-xl bg-[linear-gradient(135deg,var(--nebula),#6e5fe0)] font-['Space_Grotesk'] text-sm font-semibold tracking-[0.01em] text-white shadow-[0_8px_20px_-8px_rgba(139,127,255,0.55)] transition-all duration-200 hover:scale-[1.02] hover:shadow-[0_12px_24px_-8px_rgba(139,127,255,0.7)] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50"
         >
           <span className="ring-pulse absolute inset-0 rounded-xl border border-white/50 opacity-0 transition-opacity hover:opacity-100" />
           {busy ? (
@@ -243,7 +243,7 @@ export function AuthCard(props: AuthCardProps) {
         type="button"
         disabled={busy || !authReady}
         onClick={onGoogle}
-        className="flex w-full items-center justify-center gap-2.5 rounded-xl border border-[var(--line)] bg-[rgba(255,255,255,0.04)] py-2.5 text-sm font-medium text-[var(--ink)] transition-all hover:bg-[rgba(255,255,255,0.08)] hover:border-[rgba(139,127,255,0.3)] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+        className="flex h-10 w-full items-center justify-center gap-2.5 rounded-xl border border-[var(--line)] bg-[rgba(255,255,255,0.04)] text-sm font-medium text-[var(--ink)] transition-all duration-200 hover:scale-[1.02] hover:border-[rgba(139,127,255,0.3)] hover:bg-[rgba(255,255,255,0.08)] disabled:cursor-not-allowed disabled:opacity-50"
       >
         <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24" aria-hidden="true">
           <path

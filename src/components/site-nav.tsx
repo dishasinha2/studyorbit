@@ -36,8 +36,8 @@ type SiteNavProps = {
 
 function navClass(active: boolean) {
   return active
-    ? "relative rounded-full bg-[linear-gradient(135deg,var(--nebula-soft),var(--nebula))] px-4 py-1.5 text-xs font-semibold text-white shadow-[0_0_14px_rgba(139,127,255,0.45)] transition-all"
-    : "rounded-full px-3.5 py-1.5 text-xs font-medium text-[var(--ink-dim)] hover:bg-[rgba(255,255,255,0.06)] hover:text-[var(--ink)] transition-colors";
+    ? "relative rounded-full bg-[rgba(139,127,255,0.16)] px-4 py-1.5 text-xs font-semibold text-[var(--ink)] ring-1 ring-[rgba(139,127,255,0.35)] transition-all duration-200"
+    : "rounded-full px-3.5 py-1.5 text-xs font-medium text-[var(--ink-dim)] transition-all duration-200 hover:scale-[1.03] hover:bg-[rgba(255,255,255,0.06)] hover:text-[var(--ink)]";
 }
 
 export function SiteNav({ active }: SiteNavProps) {
@@ -61,7 +61,7 @@ export function SiteNav({ active }: SiteNavProps) {
   const avatarUrl = sessionUser?.photoUrl;
 
   return (
-    <header className="sticky top-3 z-40 rounded-2xl border border-[var(--line)] bg-[rgba(16,20,58,0.75)] p-3 shadow-[0_8px_32px_rgba(0,0,0,0.4)] backdrop-blur-xl transition-all">
+    <header className="sticky top-3 z-40 rounded-2xl border border-[var(--line)] bg-[rgba(16,20,58,0.72)] p-3 shadow-[0_8px_28px_rgba(0,0,0,0.32)] backdrop-blur-2xl transition-all">
       <div className="flex items-center justify-between gap-4">
         {/* Brand Logo */}
         <Link href="/" className="flex items-center gap-2.5 font-['Space_Grotesk'] text-lg font-bold tracking-tight text-[var(--ink)] group">
@@ -175,7 +175,7 @@ export function SiteNav({ active }: SiteNavProps) {
             <div className="flex items-center gap-2">
               <Link
                 href="/auth"
-                className="rounded-full bg-[linear-gradient(135deg,var(--nebula),var(--nebula-soft))] px-4 py-1.5 text-xs font-bold text-white shadow-[0_0_14px_rgba(139,127,255,0.4)] hover:shadow-[0_0_20px_rgba(139,127,255,0.6)] transition-all"
+                className="rounded-full border border-[rgba(139,127,255,0.38)] bg-[rgba(139,127,255,0.08)] px-4 py-1.5 text-xs font-semibold text-[var(--ink)] transition-all duration-200 hover:scale-[1.03] hover:border-[var(--nebula)] hover:bg-[rgba(139,127,255,0.16)]"
               >
                 Sign in
               </Link>

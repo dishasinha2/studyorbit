@@ -89,11 +89,11 @@ function AuthContent() {
 
   return (
     <AppSurface>
-      <div className="relative min-h-[85vh] w-full space-y-6">
+      <div className="relative min-h-[calc(100vh-3rem)] w-full space-y-8">
         <Starfield />
         <SiteNav active="auth" />
 
-        <main className="relative z-10 mx-auto grid max-w-6xl items-center gap-8 py-4 lg:grid-cols-[1.15fr_1fr] lg:gap-12">
+        <main className="relative z-10 mx-auto grid min-h-[calc(100vh-11rem)] max-w-[1200px] items-center gap-12 py-6 lg:grid-cols-[1fr_420px] lg:gap-20">
           <OrbitHero />
           <div className="relative z-10 flex justify-center">
             <AuthCard
