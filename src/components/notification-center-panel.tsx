@@ -235,7 +235,7 @@ export function NotificationCenterPanel() {
       });
       const json = await res.json().catch(() => null);
       if (res.ok) {
-        showToast(`Generated ${json.createdCount || 6} smart career reminders!`);
+        showToast(json.createdCount ? `${json.createdCount} deadline alert${json.createdCount === 1 ? "" : "s"} added.` : "No overdue or near-due deadlines.");
         await loadReminders();
       } else {
         showToast("Unable to generate reminders.");
@@ -365,7 +365,7 @@ export function NotificationCenterPanel() {
   const historyCount = reminders.filter((r) => Boolean(r.metadata?.isRead)).length;
 
   return (
-    <section className="panel shell-frame p-6 relative">
+    <section className="notification-panel panel shell-frame p-6 relative">
       {/* Toast Notification Banner */}
       {toastMessage && (
         <div className="absolute top-4 right-4 z-50 flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-xs font-semibold text-white shadow-xl animate-fade-in border border-slate-700">
@@ -375,7 +375,7 @@ export function NotificationCenterPanel() {
       )}
 
       {/* Header section */}
-      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-5">
+      <div className="notification-header flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-5">
         <div>
           <div className="flex items-center gap-2">
             <p className="text-xs font-bold uppercase tracking-[0.22em] text-cyan-600">
@@ -418,7 +418,7 @@ export function NotificationCenterPanel() {
       </div>
 
       {/* Navigation Tabs */}
-      <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-b border-slate-200/80 pb-3">
+      <div className="notification-tabs mt-5 flex flex-wrap items-center justify-between gap-3 border-b border-slate-200/80 pb-3">
         <nav className="flex flex-wrap items-center gap-1.5 text-xs font-semibold">
           <button
             type="button"
@@ -512,7 +512,7 @@ export function NotificationCenterPanel() {
 
       {/* Category Filter Pills (For Inbox & History tabs) */}
       {(activeTab === "inbox" || activeTab === "history") && (
-        <div className="mt-4 flex flex-wrap items-center gap-1.5">
+        <div className="notification-filters mt-4 flex flex-wrap items-center gap-1.5">
           <span className="flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider text-slate-400 mr-1">
             <Filter className="h-3 w-3" /> Filter:
           </span>
@@ -520,10 +520,7 @@ export function NotificationCenterPanel() {
             { id: "all", label: "All Types" },
             { id: "task", label: "Tasks" },
             { id: "deadline", label: "Deadlines" },
-            { id: "reading", label: "Reading" },
             { id: "revision", label: "Revision" },
-            { id: "ai_recommendation", label: "AI Insights" },
-            { id: "daily_productivity", label: "Productivity" },
           ].map((cat) => (
             <button
               key={cat.id}
@@ -543,7 +540,7 @@ export function NotificationCenterPanel() {
 
       {/* Tab Content 1: Inbox or History */}
       {(activeTab === "inbox" || activeTab === "history") && (
-        <div className="mt-4 grid gap-3">
+        <div className="notification-list mt-5 grid gap-3">
           {loading ? (
             <div className="p-8 text-center text-sm text-slate-500">
               <Clock className="h-6 w-6 animate-spin mx-auto mb-2 text-cyan-500" />
@@ -570,7 +567,7 @@ export function NotificationCenterPanel() {
               return (
                 <div
                   key={item.id}
-                  className={`group flex flex-wrap items-start justify-between gap-3 rounded-2xl border p-4 transition-all ${
+                  className={`notification-item group flex flex-wrap items-start justify-between gap-3 rounded-2xl border p-4 transition-all ${
                     isRead
                       ? "border-slate-200/80 bg-slate-50/50 opacity-80"
                       : "border-blue-200/90 bg-white shadow-sm hover:border-blue-300"

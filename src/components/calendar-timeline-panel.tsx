@@ -358,7 +358,7 @@ export function CalendarTimelinePanel() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="calendar-panel space-y-6">
       {/* Top Header Controls */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between border-b border-slate-200/80 pb-5">
         <div>
@@ -375,7 +375,7 @@ export function CalendarTimelinePanel() {
           </h2>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="calendar-controls flex flex-wrap items-center gap-2">
           {/* Refresh button */}
           <button
             type="button"
@@ -445,7 +445,7 @@ export function CalendarTimelinePanel() {
       </div>
 
       {/* Filter Toolbar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-slate-50/80 p-3.5 border border-slate-200/60">
+      <div className="calendar-filters flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-slate-50/80 p-3.5 border border-slate-200/60">
         <div className="flex flex-wrap items-center gap-3 text-xs">
           <span className="flex items-center gap-1 font-semibold text-slate-600">
             <Filter className="h-3.5 w-3.5 text-slate-400" /> Filters:
@@ -848,16 +848,16 @@ function MonthView({
   const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-xs">
+    <div className="calendar-month rounded-2xl border border-slate-200 bg-white overflow-x-auto shadow-xs">
       {/* Day Headers */}
-      <div className="grid grid-cols-7 border-b border-slate-200 bg-slate-50 text-center text-xs font-bold text-slate-600 py-2.5">
+      <div className="calendar-month-grid grid grid-cols-7 border-b border-slate-200 bg-slate-50 text-center text-xs font-bold text-slate-600 py-2.5">
         {daysOfWeek.map((day) => (
           <div key={day}>{day}</div>
         ))}
       </div>
 
       {/* Grid */}
-      <div className="grid grid-cols-7 divide-x divide-y divide-slate-200/80">
+      <div className="calendar-month-grid grid grid-cols-7 divide-x divide-y divide-slate-200/80">
         {calendarDays.map(({ date, isCurrentMonth }, idx) => {
           const isToday = isSameDay(date, today);
           const dayItems = items.filter((item) => isSameDay(new Date(item.date), date));
@@ -865,7 +865,7 @@ function MonthView({
           return (
             <div
               key={idx}
-              className={`min-h-[110px] p-2 transition ${
+              className={`calendar-day min-h-[124px] p-2 transition ${
                 isCurrentMonth ? "bg-white" : "bg-slate-50/50 text-slate-400"
               }`}
             >
@@ -889,7 +889,7 @@ function MonthView({
               </div>
 
               <div className="space-y-1">
-                {dayItems.slice(0, 3).map((item) => (
+                {dayItems.slice(0, 2).map((item) => (
                   <div
                     key={item.id}
                     onClick={() => onItemClick(item)}
@@ -902,9 +902,9 @@ function MonthView({
                   </div>
                 ))}
 
-                {dayItems.length > 3 && (
+                {dayItems.length > 2 && (
                   <div className="text-[10px] font-semibold text-blue-600 pl-1">
-                    +{dayItems.length - 3} more
+                    +{dayItems.length - 2} more
                   </div>
                 )}
               </div>

@@ -1,54 +1,5 @@
 "use client";
-
-import { motion } from "framer-motion";
-
-type AuthMode = "login" | "signup" | "reset";
-
-const tabOptions: { id: AuthMode; label: string }[] = [
-  { id: "login", label: "Log in" },
-  { id: "signup", label: "Sign up" },
-  { id: "reset", label: "Reset" },
-];
-
+export type AuthMode = "login" | "signup" | "reset";
 export function AuthTabs({ mode, onChange }: { mode: AuthMode; onChange: (mode: AuthMode) => void }) {
-  return (
-    <div
-      role="tablist"
-      aria-label="Authentication options"
-      className="relative flex rounded-xl border border-[var(--line)] bg-[rgba(255,255,255,0.04)] p-1 backdrop-blur-md"
-    >
-      {tabOptions.map((tab) => {
-        const isActive = mode === tab.id;
-        return (
-          <button
-            key={tab.id}
-            type="button"
-            role="tab"
-            aria-selected={isActive}
-            aria-controls={`auth-panel-${tab.id}`}
-            id={`auth-tab-${tab.id}`}
-            onClick={() => onChange(tab.id)}
-            className={`relative z-10 flex-1 rounded-lg py-2 text-center font-sans text-xs font-semibold sm:text-sm transition-colors focus-visible:outline-none ${
-              isActive
-                ? "text-[var(--void-deep)] font-bold"
-                : "text-[var(--ink-dim)] hover:text-[var(--ink)]"
-            }`}
-          >
-            {isActive && (
-              <motion.div
-                layoutId="activeAuthTabIndicator"
-                className="absolute inset-0 z-[-1] rounded-lg bg-[linear-gradient(135deg,var(--gold),#ffdc93)] shadow-[0_4px_14px_rgba(255,200,87,0.3)]"
-                transition={{ duration: 0.2, ease: "easeOut" }}
-              />
-            )}
-            {tab.label}
-          </button>
-        );
-      })}
-    </div>
-  );
+  return <div className="grid grid-cols-3 border-b border-white/10" role="tablist" aria-label="Authentication options">{([{ id: "login", label: "Login" }, { id: "signup", label: "Sign Up" }, { id: "reset", label: "Forgot Password" }] as const).map((tab) => <button key={tab.id} type="button" role="tab" aria-selected={mode === tab.id} onClick={() => onChange(tab.id)} className={`relative h-9 text-[10px] font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 ${mode === tab.id ? "text-violet-300" : "text-slate-500 hover:text-slate-300"}`}>{mode === tab.id && <span className="absolute inset-x-1 bottom-[-1px] h-px bg-violet-500 shadow-[0_0_8px_#8b5cf6]" />}{tab.label}</button>)}</div>;
 }
-
-export type { AuthMode };
-
-

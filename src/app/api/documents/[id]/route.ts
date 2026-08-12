@@ -47,6 +47,13 @@ export async function PATCH(req: NextRequest, ctx: Ctx) {
   const updateData: Record<string, unknown> = {};
   if (typeof body.name === "string" && body.name.trim()) updateData.name = body.name.trim();
   if (body.folderId === null || typeof body.folderId === "string") updateData.folderId = body.folderId || null;
+  if (typeof body.tags === "string") updateData.tagsJson = JSON.stringify(body.tags.split(",").map((tag: string) => tag.trim().toLowerCase()).filter(Boolean));
+  for (const field of ["youtubeUrl", "chatgptUrl"] as const) {
+    if (body[field] === null) updateData[field] = null;
+    if (typeof body[field] === "string" && body[field].trim()) {
+      try { new URL(body[field]); updateData[field] = body[field].trim(); } catch { return NextResponse.json({ error: `Invalid ${field}.` }, { status: 400 }); }
+    }
+  }
   if (typeof body.isFavorite === "boolean") updateData.isFavorite = body.isFavorite;
   if (typeof body.status === "string" && Object.values(DocumentStatus).includes(body.status as DocumentStatus)) {
     updateData.status = body.status as DocumentStatus;
@@ -91,4 +98,3 @@ export async function DELETE(req: NextRequest, ctx: Ctx) {
   if (deleted.count === 0) return NextResponse.json({ error: "Document not found." }, { status: 404 });
   return NextResponse.json({ ok: true });
 }
-

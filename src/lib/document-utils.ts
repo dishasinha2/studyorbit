@@ -51,6 +51,8 @@ export function serializeDocument(
     sizeBytes: document.sizeBytes,
     storageKey: document.storageKey,
     category: document.category,
+    youtubeUrl: document.youtubeUrl,
+    chatgptUrl: document.chatgptUrl,
     tags: parseTags(document.tagsJson),
     isFavorite: document.isFavorite,
     uploadedAt: document.uploadedAt,
@@ -60,4 +62,3 @@ export function serializeDocument(
     folder: document.folder ?? null,
   };
 }
-

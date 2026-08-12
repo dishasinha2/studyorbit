@@ -15,7 +15,7 @@ import {
 } from "firebase/auth";
 import { initializeApp, getApps, getApp, type FirebaseApp } from "firebase/app";
 import { getFirebaseAuthConfig } from "@/lib/auth-config";
-import { clearBrowserSession, persistBrowserSession } from "@/lib/auth-cookie";
+import { clearBrowserSession } from "@/lib/auth-cookie";
 
 export type FirebaseSession = {
   idToken: string;
@@ -82,13 +82,15 @@ async function saveSessionFromUser(user: User): Promise<FirebaseSession> {
   };
 
   if (typeof window !== "undefined") {
-    window.localStorage.setItem(SESSION_KEY, JSON.stringify(session));
-    persistBrowserSession(session.idToken, session.refreshToken);
-    void fetch("/api/auth/session", {
+    const serverSession = await fetch("/api/auth/session", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ idToken: session.idToken, refreshToken: session.refreshToken }),
-    }).catch(() => null);
+    });
+    if (!serverSession.ok) {
+      throw new Error("Unable to establish a secure session.");
+    }
+    window.localStorage.setItem(SESSION_KEY, JSON.stringify(session));
     window.dispatchEvent(new CustomEvent("studyorbit-auth", { detail: session }));
   }
 
@@ -174,6 +176,7 @@ export async function signInWithGoogle() {
   const provider = new GoogleAuthProvider();
   provider.addScope("profile");
   provider.addScope("email");
+  provider.setCustomParameters({ prompt: "select_account" });
   const credential = await signInWithPopup(auth, provider);
   return saveSessionFromUser(credential.user);
 }

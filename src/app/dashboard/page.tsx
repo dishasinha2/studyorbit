@@ -1,16 +1,10 @@
-import { AppSurface } from "@/components/app-surface";
+import { ApplicationShell } from "@/components/application-shell";
 import { CareerDashboard } from "@/components/career-dashboard";
-import { SiteFooter } from "@/components/site-footer";
-import { SiteNav } from "@/components/site-nav";
+import { requireAuthenticatedPage } from "@/lib/page-auth";
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  await requireAuthenticatedPage();
   return (
-    <AppSurface>
-      <section className="mx-auto flex max-w-6xl flex-col gap-6">
-        <SiteNav active="dashboard" />
-        <CareerDashboard />
-        <SiteFooter />
-      </section>
-    </AppSurface>
+    <ApplicationShell title="Dashboard"><CareerDashboard /></ApplicationShell>
   );
 }

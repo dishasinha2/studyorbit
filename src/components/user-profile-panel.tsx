@@ -379,7 +379,7 @@ export function UserProfilePanel({ compact = false }: UserProfilePanelProps) {
         {avatarSource ? (
           <Image src={avatarSource} alt={displayName} width={36} height={36} className="sidebar-profile-avatar object-cover" unoptimized />
         ) : (
-          <div className="sidebar-profile-avatar">{initialsFromProfile(profile) || "SO"}</div>
+          <div className="sidebar-profile-avatar">{initialsFromProfile(profile) || "–"}</div>
         )}
         <div className="min-w-0">
           <p className="truncate text-sm font-semibold text-slate-100">{displayName}</p>
@@ -394,13 +394,13 @@ export function UserProfilePanel({ compact = false }: UserProfilePanelProps) {
 
   return (
     <>
-      <section className="panel shell-frame p-6">
+      <section className="profile-panel panel shell-frame p-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex items-center gap-4">
             {avatarSource ? (
               <Image src={avatarSource} alt={displayName} width={64} height={64} className="profile-avatar-lg object-cover" unoptimized />
             ) : (
-              <div className="profile-avatar-lg">{initialsFromProfile(profile) || "SO"}</div>
+              <div className="profile-avatar-lg">{initialsFromProfile(profile) || "–"}</div>
             )}
             <div>
               <p className="text-xs uppercase tracking-[0.22em] text-cyan-500">User Profile</p>
@@ -426,7 +426,7 @@ export function UserProfilePanel({ compact = false }: UserProfilePanelProps) {
           </div>
         </div>
 
-        <div className="mt-5 grid gap-4 lg:grid-cols-[0.85fr_1.15fr]">
+        <div className="profile-career-grid mt-5 grid gap-4 lg:grid-cols-[0.85fr_1.15fr]">
           <div className="soft-card p-5">
             <p className="sub-title">Career readiness</p>
             <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
@@ -470,51 +470,6 @@ export function UserProfilePanel({ compact = false }: UserProfilePanelProps) {
               {(profile.career?.skills ?? []).slice(0, 10).map((skill) => (
                 <span key={skill} className="chip text-xs">{skill}</span>
               ))}
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-5 grid gap-4 lg:grid-cols-3">
-          <div className="soft-card p-4">
-            <p className="sub-title">Theme</p>
-            <div className="mt-3 flex gap-2">
-              {(["pastel", "light"] as const).map((option) => (
-                <button
-                  key={option}
-                  className={`chip ${themePreference === option ? "chip-active" : ""}`}
-                  onClick={() => setThemePreference(option)}
-                >
-                  {option === "pastel" ? "Pastel" : "Light"}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div className="soft-card p-4">
-            <p className="sub-title">Daily goal</p>
-            <div className="mt-3 flex items-center gap-3">
-              <input
-                className="input"
-                type="number"
-                min={30}
-                max={600}
-                value={studyGoalMin}
-                onChange={(e) => setStudyGoalMin(Number(e.target.value) || 120)}
-              />
-              <span className="text-sm text-slate-500">min</span>
-            </div>
-          </div>
-          <div className="soft-card p-4">
-            <p className="sub-title">Focus block</p>
-            <div className="mt-3 flex items-center gap-3">
-              <input
-                className="input"
-                type="number"
-                min={10}
-                max={90}
-                value={focusSessionMin}
-                onChange={(e) => setFocusSessionMin(Number(e.target.value) || 25)}
-              />
-              <span className="text-sm text-slate-500">min</span>
             </div>
           </div>
         </div>

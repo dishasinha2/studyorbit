@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { persistServerSession } from "@/lib/auth-cookie";
 import { verifyFirebaseIdToken } from "@/lib/auth-server";
+import { ensureUserProfile } from "@/lib/ensure-user";
 
 const schema = z.object({
   idToken: z.string().min(20),
@@ -19,8 +20,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid Firebase session." }, { status: 401 });
   }
 
+  // Provision a private profile as soon as a verified user signs in or signs up.
+  // Every application record is subsequently scoped through this profile ID.
+  await ensureUserProfile(auth);
+
   const response = NextResponse.json({ user: auth });
   persistServerSession(response, parsed.data.idToken, parsed.data.refreshToken);
   return response;
 }
-

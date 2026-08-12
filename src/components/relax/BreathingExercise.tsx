@@ -177,27 +177,27 @@ export function BreathingExercise() {
       )}
 
       {/* Interactive Glowing Circle Stage */}
-      <div className="flex flex-col items-center justify-center py-8 min-h-[300px]">
-        <div className="relative flex items-center justify-center">
+      <div className="breathing-stage flex flex-col items-center justify-center gap-8 py-8 sm:py-10">
+        <div className="breathing-orbit relative flex items-center justify-center">
           {/* Outer glowing animated ring */}
           <div
-            className={`h-56 w-56 sm:h-64 sm:w-64 rounded-full border-2 transition-all duration-1000 ease-in-out flex flex-col items-center justify-center text-center p-4 ${ringClass}`}
+            className={`breathing-ring h-48 w-48 sm:h-56 sm:w-56 rounded-full border-2 transition-all duration-1000 ease-in-out flex flex-col items-center justify-center text-center p-4 ${ringClass}`}
           >
             <Wind className="h-8 w-8 text-[var(--gold)] mb-2 animate-pulse" />
-            <span className={`text-sm font-bold uppercase tracking-wider font-mono ${phaseColor}`}>
+            <span className={`text-xs sm:text-sm font-bold uppercase tracking-wider font-mono ${phaseColor}`}>
               {isActive ? phaseText : "Tap Start to Begin"}
             </span>
-            <span className="font-['Space_Grotesk'] text-4xl sm:text-5xl font-black text-[var(--ink)] mt-2">
+            <span className="font-['Space_Grotesk'] text-4xl sm:text-5xl font-black leading-none text-[var(--ink)] mt-2">
               {isActive ? phaseSeconds : inhaleSec}s
             </span>
-            <span className="text-[11px] font-mono text-[var(--ink-dim)] mt-1">
+            <span className="text-[10px] sm:text-[11px] font-mono text-[var(--ink-dim)] mt-2 whitespace-nowrap">
               {inhaleSec}s Inhale &bull; {holdSec}s Hold &bull; {exhaleSec}s Exhale
             </span>
           </div>
         </div>
 
         {/* Controls */}
-        <div className="flex items-center gap-3 mt-8">
+        <div className="flex flex-wrap items-center justify-center gap-3">
           <button
             type="button"
             onClick={() => setIsActive(!isActive)}

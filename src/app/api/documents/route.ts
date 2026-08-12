@@ -21,6 +21,8 @@ const createDocumentSchema = z.object({
   category: z.string().max(80).nullable().optional(),
   tags: z.union([z.string(), z.array(z.string())]).optional(),
   summary: z.string().max(1200).nullable().optional(),
+  youtubeUrl: z.string().url().max(2048).nullable().optional(),
+  chatgptUrl: z.string().url().max(2048).nullable().optional(),
 });
 
 const patchDocumentSchema = z.object({
@@ -112,6 +114,8 @@ export async function POST(req: NextRequest) {
     category: String(formData.get("category") ?? "").trim() || undefined,
     tags: String(formData.get("tags") ?? "").trim() || undefined,
     summary: String(formData.get("summary") ?? "").trim() || undefined,
+    youtubeUrl: String(formData.get("youtubeUrl") ?? "").trim() || undefined,
+    chatgptUrl: String(formData.get("chatgptUrl") ?? "").trim() || undefined,
   };
   const parsed = createDocumentSchema.safeParse(raw);
   if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
@@ -145,6 +149,8 @@ export async function POST(req: NextRequest) {
       category: inferDocumentCategory(parsed.data.name, parsed.data.category),
       tagsJson: stringifyTags(parsed.data.tags),
       summary: parsed.data.summary?.trim() || null,
+      youtubeUrl: parsed.data.youtubeUrl?.trim() || null,
+      chatgptUrl: parsed.data.chatgptUrl?.trim() || null,
       status: "UPLOADED",
       ingestionJobs: {
         create: {

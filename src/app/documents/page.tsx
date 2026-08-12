@@ -1,16 +1,10 @@
-import { AppSurface } from "@/components/app-surface";
+import { ApplicationShell } from "@/components/application-shell";
 import { DocumentManagerPanel } from "@/components/document-manager-panel";
-import { SiteFooter } from "@/components/site-footer";
-import { SiteNav } from "@/components/site-nav";
+import { requireAuthenticatedPage } from "@/lib/page-auth";
 
-export default function DocumentsPage() {
+export default async function DocumentsPage() {
+  await requireAuthenticatedPage();
   return (
-    <AppSurface>
-      <section className="mx-auto flex max-w-6xl flex-col gap-5">
-        <SiteNav active="documents" />
-        <DocumentManagerPanel />
-        <SiteFooter />
-      </section>
-    </AppSurface>
+    <ApplicationShell title="Documents"><DocumentManagerPanel /></ApplicationShell>
   );
 }

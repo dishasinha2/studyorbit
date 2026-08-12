@@ -63,7 +63,12 @@ export function AmbientSelector({ currentTheme, onSelectTheme }: AmbientSelector
 }
 
 export function AmbientBackground({ theme }: { theme: AmbientTheme }) {
-  switch (theme) {
+  return (
+    <div className={`ambient-background ambient-background-${theme}`} aria-hidden="true">
+      <i /><i /><i /><i /><i /><i />
+    </div>
+  );
+  /*switch (theme) {
     case "northern_lights":
       return (
         <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
@@ -106,5 +111,5 @@ export function AmbientBackground({ theme }: { theme: AmbientTheme }) {
           <div className="absolute top-1/3 -right-20 h-[450px] w-[450px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,200,87,0.15)_0%,transparent_70%)] blur-3xl" />
         </div>
       );
-  }
+  }*/
 }

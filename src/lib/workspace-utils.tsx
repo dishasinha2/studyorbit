@@ -1,19 +1,5 @@
 import type { Artifact } from "@/lib/types";
 
-export function createDemoUserId() {
-  if (typeof window === "undefined") return "demo-local";
-  const cached = localStorage.getItem("dlife_demo_uid");
-  if (cached) return cached;
-  const id = `demo-${crypto.randomUUID()}`;
-  localStorage.setItem("dlife_demo_uid", id);
-  return id;
-}
-
-export function readDemoEmail() {
-  if (typeof window === "undefined") return "demo@local";
-  return localStorage.getItem("dlife_demo_email") ?? "demo@local";
-}
-
 export function toLabel(value: string | null) {
   if (!value) return "No time";
   return new Date(value).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });

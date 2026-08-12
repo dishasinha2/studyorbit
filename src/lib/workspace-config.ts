@@ -1,11 +1,10 @@
 import type { LucideIcon } from "lucide-react";
-import { Calendar, CalendarCheck, FileStack, Inbox, Link2, PenSquare, Timer, Youtube } from "lucide-react";
+import { CalendarCheck, FileStack, Inbox, Link2, PenSquare, Timer, Youtube } from "lucide-react";
 
 export type WorkspaceModuleId =
   | "quick-capture"
   | "dashboard"
   | "study-organizer"
-  | "timeline"
   | "planner-insights"
   | "files"
   | "videos"
@@ -25,7 +24,6 @@ export type WorkspaceSidebarItem = {
 export const workspaceSidebarItems: WorkspaceSidebarItem[] = [
   { id: "quick-capture", label: "Quick Capture", icon: Inbox, meta: "Capture fast" },
   { id: "dashboard", label: "Task Schedule", icon: CalendarCheck, meta: "Plan and track" },
-  { id: "timeline", label: "Calendar & Timeline", icon: Calendar, meta: "Daily, Weekly, Monthly & PDFs" },
   { id: "files", label: "File Management", icon: FileStack, meta: "Store study material" },
   { id: "videos", label: "YouTube Store", icon: Youtube, meta: "Save learning videos" },
   { id: "notes", label: "Notes", icon: PenSquare, meta: "Write and revise" },

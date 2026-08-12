@@ -1,17 +1,10 @@
-import { AppSurface } from "@/components/app-surface";
+import { ApplicationShell } from "@/components/application-shell";
 import { AiChatPanel } from "@/components/ai-chat-panel";
-import { SiteFooter } from "@/components/site-footer";
-import { SiteNav } from "@/components/site-nav";
+import { requireAuthenticatedPage } from "@/lib/page-auth";
 
-export default function AiPage() {
+export default async function AiPage() {
+  await requireAuthenticatedPage();
   return (
-    <AppSurface>
-      <section className="mx-auto max-w-7xl space-y-6">
-        <SiteNav active="ai" />
-        <AiChatPanel />
-        <SiteFooter />
-      </section>
-    </AppSurface>
+    <ApplicationShell title="AI guidance"><AiChatPanel /></ApplicationShell>
   );
 }
-

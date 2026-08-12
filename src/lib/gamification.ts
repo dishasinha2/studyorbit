@@ -10,17 +10,6 @@ function dayDiff(a: Date, b: Date) {
   return Math.round((startOfUtcDay(a).getTime() - startOfUtcDay(b).getTime()) / MS_PER_DAY);
 }
 
-export async function seedAchievements() {
-  await prisma.achievement.createMany({
-    data: [
-      { code: "first_goal", name: "First Goal", description: "Complete your first career goal.", icon: "target", xp: 25 },
-      { code: "three_day_streak", name: "Three Day Streak", description: "Keep career activity going for three days.", icon: "flame", xp: 30 },
-      { code: "resume_ready", name: "Resume Ready", description: "Upload and analyze a resume.", icon: "file-check", xp: 40 },
-    ],
-    skipDuplicates: true,
-  });
-}
-
 async function awardAchievement(userId: string, code: string) {
   const achievement = await prisma.achievement.findUnique({ where: { code } });
   if (!achievement) return null;
@@ -33,7 +22,6 @@ async function awardAchievement(userId: string, code: string) {
 }
 
 export async function recordCareerActivity(userId: string, input: { xp?: number; achievementCode?: string } = {}) {
-  await seedAchievements();
   const user = await prisma.userProfile.findUnique({ where: { id: userId } });
   if (!user) throw new Error("User not found.");
 
@@ -59,7 +47,6 @@ export async function recordCareerActivity(userId: string, input: { xp?: number;
 }
 
 export async function gamificationSummary(userId: string) {
-  await seedAchievements();
   const [user, achievements, goals] = await Promise.all([
     prisma.userProfile.findUnique({
       where: { id: userId },
@@ -96,4 +83,3 @@ export async function gamificationSummary(userId: string) {
     })),
   };
 }
-

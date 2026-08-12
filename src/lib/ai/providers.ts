@@ -103,39 +103,6 @@ export function readRuntimeEnv(name: string) {
   return "";
 }
 
-function maybeMockCompletion(provider: AiProviderId, request: ChatCompletionRequest) {
-  if (process.env.ALLOW_AI_PROVIDER_TESTING !== "true") return null;
-  const scenario = String(request.metadata?.testScenario ?? "");
-  if (!scenario) return null;
-
-  if (scenario === "gemini_success" && provider === "gemini") {
-    return {
-      provider,
-      model: request.model || "gemini-2.5-flash",
-      content: "Mock Gemini career answer grounded in retrieved context [1].",
-      usage: { inputTokens: 10, outputTokens: 12 },
-    } satisfies ChatCompletionResponse;
-  }
-
-  if (scenario === "gemini_fail_groq_success") {
-    if (provider === "gemini") throw new Error("Mock Gemini provider error.");
-    if (provider === "groq") {
-      return {
-        provider,
-        model: request.model || "llama-3.1-8b-instant",
-        content: "Mock Groq fallback career answer grounded in retrieved context [1].",
-        usage: { inputTokens: 11, outputTokens: 13 },
-      } satisfies ChatCompletionResponse;
-    }
-  }
-
-  if (scenario === "all_fail" && (provider === "gemini" || provider === "groq")) {
-    throw new Error(`Mock ${provider} provider error.`);
-  }
-
-  return null;
-}
-
 function readGeminiKey() {
   return (
     readRuntimeEnv("GEMINI_API_KEY") ||
@@ -161,9 +128,6 @@ class GeminiProvider implements AiModelProvider {
   }
 
   async createChatCompletion(request: ChatCompletionRequest): Promise<ChatCompletionResponse> {
-    const mock = maybeMockCompletion(this.id, request);
-    if (mock) return mock;
-
     const key = readGeminiKey();
     if (!key) throw new Error("Gemini chat provider is not configured.");
 
@@ -247,9 +211,6 @@ class GroqProvider implements AiModelProvider {
   }
 
   async createChatCompletion(request: ChatCompletionRequest): Promise<ChatCompletionResponse> {
-    const mock = maybeMockCompletion(this.id, request);
-    if (mock) return mock;
-
     const key = readGroqKey();
     if (!key) throw new Error("Groq chat provider is not configured.");
 

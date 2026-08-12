@@ -13,6 +13,7 @@ import {
   Sparkles,
   Target,
   Timer as TimerIcon,
+  Trash2,
   Zap,
 } from "lucide-react";
 import { getFirebaseIdToken, readStoredSession } from "@/lib/firebase-client";
@@ -28,6 +29,20 @@ type FocusSessionItem = {
 };
 
 type TimerMode = "pomodoro" | "shortBreak" | "longBreak" | "custom";
+
+type StoredTimer = {
+  timerMode: TimerMode;
+  customFocusMin: number;
+  customBreakMin: number;
+  sessionNote: string;
+  totalSeconds: number;
+  timeRemaining: number;
+  isRunning: boolean;
+  sessionStartedAt: string | null;
+  savedAt: number;
+};
+
+const TIMER_STORAGE_KEY = "studyorbit.focus-timer";
 
 export function FocusPanel() {
   // Stats state
@@ -46,8 +61,54 @@ export function FocusPanel() {
   const [timeRemaining, setTimeRemaining] = useState(25 * 60); // in seconds
   const [totalSeconds, setTotalSeconds] = useState(25 * 60);
   const [sessionStartedAt, setSessionStartedAt] = useState<Date | null>(null);
+  const [timerHydrated, setTimerHydrated] = useState(false);
 
   const audioCtxRef = useRef<AudioContext | null>(null);
+  const sessionRecordedRef = useRef(false);
+
+  // Keep a running timer alive across navigation. Wall-clock time is used on
+  // restore, so the countdown remains accurate even while this page is closed.
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(TIMER_STORAGE_KEY);
+      if (saved) {
+        const timer = JSON.parse(saved) as StoredTimer;
+        const elapsedWhileAway = timer.isRunning ? Math.floor((Date.now() - timer.savedAt) / 1000) : 0;
+        setTimerMode(timer.timerMode);
+        setCustomFocusMin(timer.customFocusMin);
+        setCustomBreakMin(timer.customBreakMin);
+        setSessionNote(timer.sessionNote);
+        setTotalSeconds(timer.totalSeconds);
+        const remaining = Math.max(0, timer.timeRemaining - elapsedWhileAway);
+        setTimeRemaining(remaining);
+        // Never create a session merely because the app was reopened after a
+        // timer elapsed. A focus record is only created by an active timer or
+        // an explicit "Complete & Record" action in the current session.
+        setIsRunning(timer.isRunning && remaining > 0);
+        setSessionStartedAt(timer.sessionStartedAt ? new Date(timer.sessionStartedAt) : null);
+      }
+    } catch {
+      localStorage.removeItem(TIMER_STORAGE_KEY);
+    } finally {
+      setTimerHydrated(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!timerHydrated) return;
+    const timer: StoredTimer = {
+      timerMode,
+      customFocusMin,
+      customBreakMin,
+      sessionNote,
+      totalSeconds,
+      timeRemaining,
+      isRunning,
+      sessionStartedAt: sessionStartedAt?.toISOString() ?? null,
+      savedAt: Date.now(),
+    };
+    localStorage.setItem(TIMER_STORAGE_KEY, JSON.stringify(timer));
+  }, [timerHydrated, timerMode, customFocusMin, customBreakMin, sessionNote, totalSeconds, timeRemaining, isRunning, sessionStartedAt]);
 
   // Sound chime when timer finishes
   const playCompletionChime = useCallback(() => {
@@ -140,29 +201,35 @@ export function FocusPanel() {
     setTimeRemaining(seconds);
     setTotalSeconds(seconds);
     setSessionStartedAt(null);
+    sessionRecordedRef.current = false;
   }, [customFocusMin]);
 
-  // Log session to backend when completed
-  const handleSessionComplete = useCallback(async () => {
+  // Log only the time that was actually spent in the focus session.
+  const handleSessionComplete = useCallback(async (completedSeconds?: number) => {
+    // This guard is synchronous, so double-clicks and overlapping timer ticks
+    // cannot create more than one record for the same timer run.
+    if (sessionRecordedRef.current) return;
+
     playCompletionChime();
 
-    let focusMin = 25;
     let breakMin = 5;
     if (timerMode === "pomodoro") {
-      focusMin = 25;
       breakMin = 5;
     } else if (timerMode === "shortBreak") {
-      focusMin = 0;
       breakMin = 5;
     } else if (timerMode === "longBreak") {
-      focusMin = 0;
       breakMin = 15;
     } else if (timerMode === "custom") {
-      focusMin = customFocusMin;
       breakMin = customBreakMin;
     }
 
-    if (focusMin > 0) {
+    const elapsedSeconds = completedSeconds ?? Math.max(0, totalSeconds - timeRemaining);
+    // The database stores whole minutes. Flooring prevents a 20m session
+    // from being incorrectly credited as the full 25m preset.
+    const focusMin = Math.floor(elapsedSeconds / 60);
+
+    if (focusMin > 0 && (timerMode === "pomodoro" || timerMode === "custom")) {
+      sessionRecordedRef.current = true;
       try {
         const session = readStoredSession();
         const token = (await getFirebaseIdToken()) || session?.idToken;
@@ -172,7 +239,7 @@ export function FocusPanel() {
         };
 
         const now = new Date();
-        const start = sessionStartedAt || new Date(now.getTime() - focusMin * 60 * 1000);
+        const start = sessionStartedAt || new Date(now.getTime() - elapsedSeconds * 1000);
 
         await fetch("/api/focus", {
           method: "POST",
@@ -188,10 +255,11 @@ export function FocusPanel() {
 
         await fetchStats();
       } catch (err) {
+        sessionRecordedRef.current = false;
         console.error("Failed to log focus session", err);
       }
     }
-  }, [timerMode, customFocusMin, customBreakMin, sessionNote, sessionStartedAt, playCompletionChime, fetchStats]);
+  }, [timerMode, customBreakMin, sessionNote, sessionStartedAt, totalSeconds, timeRemaining, playCompletionChime, fetchStats]);
 
   // Timer interval effect
   useEffect(() => {
@@ -201,7 +269,7 @@ export function FocusPanel() {
         setTimeRemaining((prev) => {
           if (prev <= 1) {
             setIsRunning(false);
-            void handleSessionComplete();
+            void handleSessionComplete(totalSeconds);
             return 0;
           }
           return prev - 1;
@@ -212,10 +280,24 @@ export function FocusPanel() {
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [isRunning, handleSessionComplete]);
+  }, [isRunning, totalSeconds, handleSessionComplete]);
 
   const handleStart = () => {
-    if (!sessionStartedAt) {
+    // A completed countdown can be restored from local storage at 00:00.
+    // Starting it must begin a fresh timer, never record the whole preset.
+    if (timeRemaining <= 0) {
+      const seconds = timerMode === "pomodoro"
+        ? 25 * 60
+        : timerMode === "shortBreak"
+          ? 5 * 60
+          : timerMode === "longBreak"
+            ? 15 * 60
+            : Math.max(1, customFocusMin) * 60;
+      setTotalSeconds(seconds);
+      setTimeRemaining(seconds);
+      sessionRecordedRef.current = false;
+    }
+    if (!sessionStartedAt || timeRemaining <= 0) {
       setSessionStartedAt(new Date());
     }
     setIsRunning(true);
@@ -228,6 +310,19 @@ export function FocusPanel() {
   const handleReset = () => {
     applyTimerPreset(timerMode);
   };
+
+  const deleteSession = useCallback(async (id: string) => {
+    try {
+      const session = readStoredSession();
+      const token = (await getFirebaseIdToken()) || session?.idToken;
+      const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
+      const res = await fetch(`/api/focus?id=${encodeURIComponent(id)}`, { method: "DELETE", headers });
+      if (!res.ok) throw new Error("Failed to delete focus session");
+      await fetchStats();
+    } catch (err) {
+      console.error("Failed to delete focus session", err);
+    }
+  }, [fetchStats]);
 
   const formatTime = (secs: number) => {
     const m = Math.floor(secs / 60);
@@ -244,7 +339,7 @@ export function FocusPanel() {
   const targetProgress = Math.min(100, Math.round((usedMinutes / dailyTargetMin) * 100));
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto">
+    <div className="focus-premium space-y-8 mx-auto">
       {/* Top Header */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-[var(--line)] pb-5">
         <div>
@@ -386,7 +481,7 @@ export function FocusPanel() {
             {/* Timer Clock Circle */}
             <div className="flex flex-col items-center justify-center py-4">
               <div className="relative flex h-56 w-56 sm:h-64 sm:w-64 items-center justify-center rounded-full border border-[var(--line)] bg-[rgba(6,8,20,0.6)] shadow-[inset_0_0_30px_rgba(0,0,0,0.5)]">
-                <svg className="absolute inset-0 h-full w-full -rotate-90">
+                <svg viewBox="0 0 256 256" className="absolute inset-0 h-full w-full -rotate-90">
                   <circle
                     cx="128"
                     cy="128"
@@ -456,7 +551,10 @@ export function FocusPanel() {
 
               <button
                 type="button"
-                onClick={() => void handleSessionComplete()}
+                onClick={() => {
+                  setIsRunning(false);
+                  void handleSessionComplete();
+                }}
                 className="rounded-full border border-[var(--line)] bg-[rgba(255,255,255,0.04)] p-3 text-[var(--ink-dim)] hover:text-[var(--ink)] transition"
                 title="Complete & Record"
               >
@@ -540,9 +638,20 @@ export function FocusPanel() {
                         </div>
                       </div>
 
-                      <span className="font-mono font-semibold text-[var(--nebula)] bg-[rgba(139,127,255,0.1)] border border-[rgba(139,127,255,0.2)] rounded-lg px-2 py-0.5">
-                        +{s.durationMin} m
-                      </span>
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-mono font-semibold text-[var(--nebula)] bg-[rgba(139,127,255,0.1)] border border-[rgba(139,127,255,0.2)] rounded-lg px-2 py-0.5">
+                          +{s.durationMin} m
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => void deleteSession(s.id)}
+                          className="grid h-7 w-7 place-items-center rounded-lg text-[var(--ink-dim)] hover:bg-rose-500/10 hover:text-rose-500"
+                          aria-label={`Delete ${s.note || "focus session"}`}
+                          title="Delete log"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>

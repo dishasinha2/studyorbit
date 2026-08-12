@@ -1,46 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import { prisma } from "@/lib/prisma";
+import { getUserFromRequest } from "@/lib/route-auth";
 
-export type MoodEntry = {
-  id: string;
-  mood: "great" | "good" | "okay" | "tired" | "burned_out";
-  label: string;
-  emoji: string;
-  createdAt: string;
-};
+const moodSchema = z.object({ mood: z.enum(["great", "good", "okay", "tired", "burned_out"]), label: z.string().trim().min(1).max(40), emoji: z.string().trim().min(1).max(16) });
 
-// In-memory fallback for local session storage or backend sync
-let MOOD_LOGS: MoodEntry[] = [
-  { id: "m1", mood: "good", label: "Good", emoji: "🙂", createdAt: new Date(Date.now() - 86400000 * 3).toISOString() },
-  { id: "m2", mood: "great", label: "Great", emoji: "😄", createdAt: new Date(Date.now() - 86400000 * 2).toISOString() },
-  { id: "m3", mood: "okay", label: "Okay", emoji: "😐", createdAt: new Date(Date.now() - 86400000 * 1).toISOString() },
-  { id: "m4", mood: "good", label: "Good", emoji: "🙂", createdAt: new Date().toISOString() },
-];
-
-export async function GET() {
-  return NextResponse.json({ logs: MOOD_LOGS, success: true });
+export async function GET(req: NextRequest) {
+  const user = await getUserFromRequest(req);
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const logs = await prisma.relaxMoodEntry.findMany({ where: { userId: user.id }, orderBy: { createdAt: "desc" }, take: 14 });
+  return NextResponse.json({ logs, success: true });
 }
 
 export async function POST(req: NextRequest) {
-  try {
-    const body = await req.json();
-    const { mood, label, emoji } = body;
-
-    if (!mood) {
-      return NextResponse.json({ error: "Mood is required" }, { status: 400 });
-    }
-
-    const newEntry: MoodEntry = {
-      id: `mood-${Date.now()}`,
-      mood,
-      label: label || "Good",
-      emoji: emoji || "🙂",
-      createdAt: new Date().toISOString(),
-    };
-
-    MOOD_LOGS = [newEntry, ...MOOD_LOGS].slice(0, 14);
-
-    return NextResponse.json({ entry: newEntry, logs: MOOD_LOGS, success: true });
-  } catch (err) {
-    return NextResponse.json({ error: "Failed to record mood", details: String(err) }, { status: 500 });
-  }
+  const user = await getUserFromRequest(req);
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const parsed = moodSchema.safeParse(await req.json().catch(() => null));
+  if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
+  const entry = await prisma.relaxMoodEntry.create({ data: { userId: user.id, ...parsed.data } });
+  const logs = await prisma.relaxMoodEntry.findMany({ where: { userId: user.id }, orderBy: { createdAt: "desc" }, take: 14 });
+  return NextResponse.json({ entry, logs, success: true }, { status: 201 });
 }

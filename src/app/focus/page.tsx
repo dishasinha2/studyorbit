@@ -1,16 +1,10 @@
-import { AppSurface } from "@/components/app-surface";
+import { ApplicationShell } from "@/components/application-shell";
 import { FocusPanel } from "@/components/focus-panel";
-import { SiteFooter } from "@/components/site-footer";
-import { SiteNav } from "@/components/site-nav";
+import { requireAuthenticatedPage } from "@/lib/page-auth";
 
-export default function FocusPage() {
+export default async function FocusPage() {
+  await requireAuthenticatedPage();
   return (
-    <AppSurface>
-      <SiteNav active="focus" />
-      <div className="my-8">
-        <FocusPanel />
-      </div>
-      <SiteFooter />
-    </AppSurface>
+    <ApplicationShell title="Focus"><FocusPanel /></ApplicationShell>
   );
 }

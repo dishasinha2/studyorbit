@@ -1,0 +1,3 @@
+ALTER TABLE "Document"
+  ADD COLUMN IF NOT EXISTS "youtubeUrl" TEXT,
+  ADD COLUMN IF NOT EXISTS "chatgptUrl" TEXT;

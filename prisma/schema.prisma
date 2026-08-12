@@ -70,6 +70,7 @@ enum NotificationChannel {
 model UserProfile {
   id                    String                   @id @default(cuid())
   authId                String                   @unique
+  email                 String?                  @unique
   name                  String?
   avatarUrl             String?
   age                   Int?
@@ -114,6 +115,7 @@ model UserProfile {
   notificationPreference NotificationPreference?
   notificationReminders NotificationReminder[]
   ingestionJobs         DocumentIngestionJob[]
+  relaxMoodEntries      RelaxMoodEntry[]
 }
 
 model EducationHistory {
@@ -316,6 +318,8 @@ model Document {
   summary         String?
   tagsJson        String                 @default("[]")
   category        String?
+  youtubeUrl      String?
+  chatgptUrl      String?
   isFavorite      Boolean                @default(false)
   uploadedAt      DateTime               @default(now())
   updatedAt       DateTime               @updatedAt
@@ -496,4 +500,16 @@ model NotificationReminder {
 
   @@index([userId, dueAt])
   @@index([userId, kind, isSent])
+}
+
+model RelaxMoodEntry {
+  id        String      @id @default(cuid())
+  userId    String
+  mood      String
+  label     String
+  emoji     String
+  createdAt DateTime    @default(now())
+  user      UserProfile @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
 }

@@ -1,176 +1,43 @@
 import Link from "next/link";
-import {
-  ArrowRight,
-  Bell,
-  FileText,
-  Headphones,
-  PenSquare,
-  Sparkles,
-  Timer,
-  Youtube,
-} from "lucide-react";
-import { AnimatedHero } from "@/components/animated-hero";
-import { AppSurface } from "@/components/app-surface";
-import { SiteFooter } from "@/components/site-footer";
-import { SiteNav } from "@/components/site-nav";
-import { ScrollReveal } from "@/components/scroll-reveal";
+import { ArrowRight, BrainCircuit, CalendarDays, Check, FileText, Focus, GraduationCap, Lock, Play, Sparkles, TrendingUp } from "lucide-react";
+import { SplashScreen } from "@/components/splash-screen";
 
-const featureGrid = [
-  {
-    id: "pdf-vault",
-    title: "PDF Vault & Tagging",
-    category: "DOCUMENTS",
-    description: "Upload, tag, and categorize lecture slides, textbook chapters, and past exam papers in one searchable vault.",
-    icon: FileText,
-    accent: "rgba(139,127,255,0.15)",
-    iconColor: "var(--nebula)",
-    href: "/documents",
-    cta: "Manage PDFs",
-  },
-  {
-    id: "tasks-reminders",
-    title: "Task & Reminder Radar",
-    category: "REMINDERS",
-    description: "Keep track of assignment due dates, exam milestones, and daily study goals with browser notification alerts.",
-    icon: Bell,
-    accent: "rgba(255,200,87,0.15)",
-    iconColor: "var(--gold)",
-    href: "/notifications",
-    cta: "View Reminders",
-  },
-  {
-    id: "focus-timer",
-    title: "Deep Work Focus Timer",
-    category: "FOCUS & BREAKS",
-    description: "Boost retention using customizable Pomodoro cycles, interval timers, session logging, and subtle audio cues.",
-    icon: Timer,
-    accent: "rgba(255,140,107,0.15)",
-    iconColor: "var(--coral)",
-    href: "/focus",
-    cta: "Start Focus",
-  },
-  {
-    id: "linked-youtube-gpt",
-    title: "YouTube & GPT Link Orbit",
-    category: "SMART MEDIA",
-    description: "Link specific lecture YouTube timestamps and AI-generated concept summaries directly to your study topics.",
-    icon: Youtube,
-    accent: "rgba(111,227,193,0.15)",
-    iconColor: "var(--mint)",
-    href: "/workspace",
-    cta: "Explore Links",
-  },
-  {
-    id: "quick-notes",
-    title: "Sticky Notes & Whiteboard",
-    category: "IDEAS & SKETCHES",
-    description: "Pin quick study reminders to your workspace or draw diagrams and equations on the freeform canvas.",
-    icon: PenSquare,
-    accent: "rgba(139,127,255,0.15)",
-    iconColor: "var(--nebula)",
-    href: "/workspace",
-    cta: "Open Notes",
-  },
-  {
-    id: "relax-audio",
-    title: "Relaxation & Lofi Beats",
-    category: "RELAXATION",
-    description: "Unwind during break intervals with curated lofi music, rain soundscapes, and calming ambient noise.",
-    icon: Headphones,
-    accent: "rgba(255,200,87,0.15)",
-    iconColor: "var(--gold)",
-    href: "/relax",
-    cta: "Listen Now",
-  },
+const features = [
+  { icon: BrainCircuit, title: "AI Workspace", text: "A focused space that helps you turn material into progress." },
+  { icon: FileText, title: "PDF Intelligence", text: "Ask, summarize, and revisit the documents that matter." },
+  { icon: CalendarDays, title: "Smart Calendar", text: "Keep deadlines, milestones, and study plans in view." },
+  { icon: Focus, title: "Focus Engine", text: "Build deep-work sessions that fit your day." },
+  { icon: GraduationCap, title: "Career Assistant", text: "Connect your learning with your next opportunity." },
+  { icon: TrendingUp, title: "Study Analytics", text: "See your momentum and make each week count." },
 ];
+const orbitItems = ["PDFs", "Notes", "Calendar", "Focus", "AI", "Career", "Tasks", "Links", "Resources"];
 
 export default function Home() {
-  return (
-    <AppSurface>
-      <div className="mx-auto flex max-w-[1200px] flex-col gap-20 sm:gap-28">
-        {/* Navigation */}
-        <SiteNav active="intro" />
-
-        {/* Hero Section */}
-        <AnimatedHero />
-
-        {/* Bento Feature Grid Section */}
-        <ScrollReveal>
-        <section id="features" className="space-y-8 scroll-mt-28">
-          {/* Section Header */}
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-[var(--line)] pb-4">
-            <div>
-              <div className="inline-flex items-center gap-2 text-xs font-mono font-semibold uppercase tracking-widest text-[var(--gold)]">
-                <Sparkles className="h-3.5 w-3.5" />
-                <span>Integrated Study System</span>
-              </div>
-              <h2 className="mt-1 font-['Space_Grotesk'] text-2xl sm:text-3xl font-extrabold text-[var(--ink)]">
-                Everything you need to study in flow.
-              </h2>
-            </div>
-            <p className="text-xs sm:text-sm text-[var(--ink-dim)] max-w-md">
-              No disconnected tools. Every note, PDF, reminder, and focus session communicates in one synchronized orbit.
-            </p>
-          </div>
-
-          {/* Feature Grid */}
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {featureGrid.map((feature) => {
-              const Icon = feature.icon;
-              return (
-                <div
-                  key={feature.id}
-                  className="group relative flex flex-col justify-between rounded-2xl border border-[var(--line)] bg-[var(--panel)] p-6 transition-all duration-300 hover:-translate-y-1.5 hover:border-[var(--nebula)]/50 hover:shadow-[0_8px_30px_rgba(139,127,255,0.15)]"
-                >
-                  <div className="space-y-4">
-                    {/* Top Row: Icon Badge & Category Tag */}
-                    <div className="flex items-center justify-between">
-                      <span
-                        className="inline-flex h-10 w-10 items-center justify-center rounded-xl transition-transform duration-300 group-hover:scale-110"
-                        style={{
-                          background: feature.accent,
-                          color: feature.iconColor,
-                        }}
-                      >
-                        <Icon className="h-5 w-5" />
-                      </span>
-                      <span className="font-mono text-[10px] font-semibold tracking-wider text-[var(--ink-dim)] uppercase bg-[var(--card)] px-2.5 py-1 rounded-full border border-[var(--line)]">
-                        {feature.category}
-                      </span>
-                    </div>
-
-                    {/* Content */}
-                    <div>
-                      <h3 className="font-['Space_Grotesk'] text-lg font-bold text-[var(--ink)] group-hover:text-[var(--gold)] transition-colors">
-                        {feature.title}
-                      </h3>
-                      <p className="mt-2 text-xs sm:text-sm text-[var(--ink-dim)] leading-relaxed">
-                        {feature.description}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* CTA Link */}
-                  <div className="mt-6 pt-4 border-t border-[var(--line)]">
-                    <Link
-                      href={feature.href}
-                      className="inline-flex items-center gap-1.5 text-xs font-bold text-[var(--nebula)] hover:text-[var(--gold)] transition-colors"
-                    >
-                      <span>{feature.cta}</span>
-                      <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
-                    </Link>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </section>
-        </ScrollReveal>
-
-        {/* Site Footer */}
-        <SiteFooter />
+  return <SplashScreen><main className="landing-premium">
+    <nav className="landing-nav-premium">
+      <Link href="/" className="landing-brand"><span><Sparkles size={16} /></span>StudyOrbit</Link>
+      <div className="landing-nav-links"><a href="#features">Features</a><a href="#preview">Workspace</a><span>Pricing <small>Coming soon</small></span><a href="#about">About</a></div>
+      <div className="landing-nav-actions"><Link href="/auth" className="landing-signin">Sign in</Link><Link href="/auth" className="landing-primary">Get started <ArrowRight size={15} /></Link></div>
+    </nav>
+    <section className="landing-hero-premium">
+      <div>
+        <p className="landing-kicker"><Sparkles size={14} /> Your AI study operating system</p>
+        <h1>Study <em>Smarter.</em><br />Stay <em>Focused.</em><br />Achieve More.</h1>
+        <p>Everything for your notes, deadlines, focus sessions, and future&mdash;working together in one intelligent space.</p>
+        <div className="landing-actions"><Link href="/auth" className="landing-primary">Get Started <ArrowRight size={17} /></Link><a href="#preview" className="landing-secondary"><Play size={14} /> Watch Demo</a></div>
+        <div className="landing-trust"><span><Check />Secure</span><span><Check />AI Powered</span><span><Check />Private</span></div>
       </div>
-    </AppSurface>
-  );
+      <div className="landing-core" aria-hidden="true">
+        <div className="core-glow" /><div className="core-ring r1" /><div className="core-ring r2" /><div className="core-ring r3" />
+        <div className="core-stars"><i /><i /><i /></div>
+        {orbitItems.map((item, index) => <span key={item} className={`core-item core-item-${index}`}><i />{item}</span>)}
+        <div className="core-orb"><span>STUDY</span><strong>ORBIT</strong><small>AI LEARNING OS</small></div>
+      </div>
+    </section>
+    <section id="features" className="landing-block"><div className="landing-block-head"><p>Built for momentum</p><h2>One intelligent workspace for every study day.</h2></div><div className="landing-feature-grid-premium">{features.map(({ icon: Icon, title, text }) => <article key={title}><span><Icon size={21} /></span><h3>{title}</h3><p>{text}</p></article>)}</div></section>
+    <section id="preview" className="landing-preview"><div><p className="landing-kicker">Your workspace, in sync</p><h2>See the whole picture.<br /><em>Stay in the flow.</em></h2><p>Plan a deadline, read a PDF, start a focus session, and ask AI for help&mdash;without switching tools.</p></div><div className="landing-mockup" aria-label="StudyOrbit dashboard preview"><header><span>StudyOrbit</span><i /><i /></header><div className="mockup-grid"><article><small>Today&apos;s focus</small><strong>02:15</strong><p>Deep work remaining</p></article><article><small>Upcoming</small><b>Research paper</b><p>Due Friday &middot; 2 tasks</p></article><article><small>Study streak</small><strong>12 days</strong><p>Keep it going</p></article></div></div></section>
+    <section id="about" className="landing-steps"><div className="landing-block-head"><p>How it works</p><h2>A calmer way to learn with AI.</h2></div><div>{[["01", "Create your account", "Set up a private workspace in seconds."], ["02", "Upload your PDFs", "Bring your materials, notes, and goals together."], ["03", "Study with AI", "Stay focused and move confidently forward."]].map(([number, title, description]) => <article key={number}><b>{number}</b><h3>{title}</h3><p>{description}</p></article>)}</div></section>
+    <section className="landing-final"><Lock size={20} /><p>Ready when you are</p><h2>Ready to build your study workspace?</h2><Link href="/auth" className="landing-primary">Get Started <ArrowRight size={16} /></Link></section>
+    <footer className="landing-footer-premium"><Link href="/" className="landing-brand"><span><Sparkles size={14} /></span>StudyOrbit</Link><p>&copy; 2026 StudyOrbit. Private by design.</p><div><a href="#features">Features</a><a href="#about">About</a><a href="https://github.com" target="_blank">GitHub</a><a href="#">Privacy</a></div></footer>
+  </main></SplashScreen>;
 }
-

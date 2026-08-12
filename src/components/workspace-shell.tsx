@@ -1,10 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
-import { motion, type PanInfo } from "framer-motion";
-import { AlarmClock, CalendarCheck, CheckCircle2, ChevronDown, ChevronRight, Clock3, Command, Expand, ExternalLink, FileStack, FolderOpen, Highlighter, Layers3, Lightbulb, Link2, PenSquare, Pin, Plus, Search, Timer, Trash2, Underline, UserCircle2, Youtube, Zap } from "lucide-react";
+import { motion } from "framer-motion";
+import Link from "next/link";
+import { CheckCircle2, ChevronDown, Command, Expand, ExternalLink, FileStack, FolderOpen, Highlighter, Layers3, Lightbulb, Link2, PenSquare, Pin, Plus, Search, Timer, Trash2, UserCircle2, Youtube, Zap } from "lucide-react";
 import { getFirebaseIdToken, onAuthChange, readStoredSession } from "@/lib/firebase-client";
-import { CalendarTimelinePanel } from "@/components/calendar-timeline-panel";
 import { FocusPanel } from "@/components/focus-panel";
 import type { Artifact, FileItem, FocusSession, PlannerEvent, StickyNote, VideoBookmark, Whiteboard } from "@/lib/types";
 import type { WorkspaceModuleId } from "@/lib/workspace-config";
@@ -125,7 +125,6 @@ export function WorkspaceShell({ activeModule = "all", onCountsChange }: Workspa
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [searchCounts, setSearchCounts] = useState<Record<string, number>>({ all: 0 });
   const [searchLoading, setSearchLoading] = useState(false);
-  const [seedingDemo, setSeedingDemo] = useState(false);
   const [moduleLoading, setModuleLoading] = useState<ModuleLoadingState>({
     brief: false,
     events: false,
@@ -147,9 +146,6 @@ export function WorkspaceShell({ activeModule = "all", onCountsChange }: Workspa
   const [captureBody, setCaptureBody] = useState("");
   const [captureUrl, setCaptureUrl] = useState("");
   const [captureDueAt, setCaptureDueAt] = useState("");
-  const [eventTitle, setEventTitle] = useState("");
-  const [eventStart, setEventStart] = useState("");
-  const [eventReminder, setEventReminder] = useState("");
   const [stickyContent, setStickyContent] = useState("");
   const [stickyColor, setStickyColor] = useState("#fef08a");
   const [stickyFilter, setStickyFilter] = useState<"all" | "pinned" | "study">("all");
@@ -486,12 +482,12 @@ export function WorkspaceShell({ activeModule = "all", onCountsChange }: Workspa
   const showModule = useCallback((id: string) => showAllModules || activeModule === id, [showAllModules, activeModule]);
   const showOverview = showAllModules;
   const moduleNeeds = useMemo(() => ({
-    brief: showAllModules || activeModule === "dashboard" || activeModule === "timeline" || activeModule === "planner-insights",
-    events: showAllModules || activeModule === "dashboard" || activeModule === "timeline" || activeModule === "planner-insights",
+    brief: showAllModules || activeModule === "dashboard" || activeModule === "planner-insights",
+    events: showAllModules || activeModule === "dashboard" || activeModule === "planner-insights",
     stickies: showAllModules || activeModule === "dashboard",
     focus: showAllModules || activeModule === "dashboard" || activeModule === "focus-lab",
     notes: showAllModules || activeModule === "dashboard" || activeModule === "notes",
-    tasks: showAllModules || activeModule === "dashboard" || activeModule === "study-organizer" || activeModule === "timeline" || activeModule === "planner-insights",
+    tasks: showAllModules || activeModule === "dashboard" || activeModule === "study-organizer" || activeModule === "planner-insights",
     links: showAllModules || activeModule === "study-links",
     boards: showAllModules || activeModule === "notes",
     videos: showAllModules || activeModule === "dashboard" || activeModule === "videos",
@@ -775,46 +771,6 @@ export function WorkspaceShell({ activeModule = "all", onCountsChange }: Workspa
     }
   }
 
-  async function seedStudyDemoData() {
-    if (seedingDemo) return;
-    setSeedingDemo(true);
-    try {
-      await Promise.all([
-        post("/api/artifacts", {
-          title: "Revise Thermodynamics Numericals",
-          content: "Study: Physics",
-          type: "TASK",
-          contextKey: "Study/Physics",
-          dueAt: new Date(Date.now() + 36 * 60 * 60 * 1000).toISOString(),
-        }),
-        post("/api/artifacts", {
-          title: "Practice Binary Search Problems",
-          content: "Study: DSA",
-          type: "TASK",
-          contextKey: "Study/DSA",
-          dueAt: new Date(Date.now() + 20 * 60 * 60 * 1000).toISOString(),
-        }),
-        post("/api/artifacts", {
-          title: "GPT Prompt: Organic Chemistry Revision",
-          content: "Use this prompt to generate last-minute concept recap questions.",
-          type: "LINK",
-          source: "https://chat.openai.com/",
-          contextKey: "Links/Chemistry",
-        }),
-        post("/api/videos", {
-          title: "Calculus One Shot Revision",
-          url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-          comment: "Focus on integration shortcuts.",
-          tags: "math,revision",
-        }),
-        post("/api/sticky", { content: "Target: 3 focused sessions today", color: "#bbf7d0" }),
-      ]);
-    } finally {
-      setSeedingDemo(false);
-      await loadData();
-    }
-  }
-
   function isBlocked(text: string) {
     const lower = text.toLowerCase();
     return blockedHosts.some((host) => lower.includes(host));
@@ -952,21 +908,6 @@ export function WorkspaceShell({ activeModule = "all", onCountsChange }: Workspa
     setCaptureBody("");
     setCaptureUrl("");
     setCaptureDueAt("");
-  }
-
-  async function createEvent() {
-    const title = eventTitle.trim();
-    if (!title || !eventStart) return;
-    if (!canProceedWithText(`${title} ${eventReminder}`, "event")) return;
-    await post("/api/events", {
-      title,
-      startAt: new Date(eventStart).toISOString(),
-      reminderAt: eventReminder ? new Date(eventReminder).toISOString() : null,
-      isImportant: true,
-    });
-    setEventTitle("");
-    setEventStart("");
-    setEventReminder("");
   }
 
   async function createStudyTask() {
@@ -1325,7 +1266,6 @@ export function WorkspaceShell({ activeModule = "all", onCountsChange }: Workspa
       { id: "go-dashboard", label: "Go to Dashboard", hint: "Jump", keywords: "dashboard tasks meetings", run: () => jumpTo("dashboard") },
       { id: "go-study", label: "Go to Study Organizer", hint: "Jump", keywords: "study subject tasks", run: () => jumpTo("study-organizer") },
       { id: "go-links", label: "Go to Study Links", hint: "Jump", keywords: "gpt links resources", run: () => jumpTo("study-links") },
-      { id: "go-timeline", label: "Go to Today Timeline", hint: "Jump", keywords: "timeline schedule day", run: () => jumpTo("timeline") },
       { id: "go-insights", label: "Go to Planner Insights", hint: "Jump", keywords: "insights plan suggestions", run: () => jumpTo("planner-insights") },
       { id: "go-notes", label: "Go to Notes", hint: "Jump", keywords: "notes markdown", run: () => jumpTo("notes") },
       { id: "go-videos", label: "Go to YouTube Vault", hint: "Jump", keywords: "videos youtube", run: () => jumpTo("videos") },
@@ -1387,11 +1327,6 @@ export function WorkspaceShell({ activeModule = "all", onCountsChange }: Workspa
   const timerLabel = `${String(Math.floor(timerSeconds / 60)).padStart(2, "0")}:${String(timerSeconds % 60).padStart(2, "0")}`;
   const currentTimerBase = timerPhase === "work" ? pomodoroMin * 60 : breakMin * 60;
   const timerProgress = currentTimerBase > 0 ? Math.max(0, Math.min(100, ((currentTimerBase - timerSeconds) / currentTimerBase) * 100)) : 0;
-  const shortcutItems = [
-    { id: "notes", label: "Notes", detail: "Capture class notes and revision points", run: () => jumpTo("notes") },
-    { id: "videos", label: "YouTube Links", detail: "Save lectures and mark progress", run: () => jumpTo("videos") },
-    { id: "files", label: "File Manager", detail: "Keep PDFs, slides, and study docs", run: () => jumpTo("files") },
-  ];
   const sidebarCounts = useMemo<Partial<Record<WorkspaceModuleId, number>>>(() => ({
     "quick-capture": dailyBrief?.summary.pendingTasks ?? 0,
     dashboard: todayTimeline.length,
@@ -1418,28 +1353,16 @@ export function WorkspaceShell({ activeModule = "all", onCountsChange }: Workspa
     </div>
   ), []);
 
-  async function updateStickyPosition(note: StickyNote, info: PanInfo) {
-    const nextPosX = Math.round((note.posX ?? 0) + info.offset.x);
-    const nextPosY = Math.round((note.posY ?? 0) + info.offset.y);
-    setStickies((current) =>
-      current.map((item) => (item.id === note.id ? { ...item, posX: nextPosX, posY: nextPosY } : item)),
-    );
-    await patch(`/api/sticky/${note.id}`, { posX: nextPosX, posY: nextPosY });
-  }
-
   return (
-    <div className="space-y-6">
+    <div className="workspace-content space-y-6">
       {showOverview ? (
       <section className="panel workspace-command-bar p-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-xs uppercase tracking-[0.2em] text-cyan-500">StudyOrbit Command Bar</p>
-            <p className="text-sm text-slate-400">{email ?? "Guest session"} - {focusMode ? "Focus mode active" : "Focus mode off"}</p>
+            <p className="text-sm text-slate-400">{email ?? "Signed in"} - {focusMode ? "Focus mode active" : "Focus mode off"}</p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <button className="btn-secondary inline-flex items-center gap-2 px-3 py-2 text-xs" onClick={seedStudyDemoData} disabled={seedingDemo}>
-              {seedingDemo ? "Loading..." : "Load Demo Study Setup"}
-            </button>
             <button className="btn-secondary inline-flex items-center gap-2 px-3 py-2 text-xs" onClick={() => jumpTo("dashboard")}>
               <Zap className="h-3.5 w-3.5" /> Quick Add
             </button>
@@ -1593,33 +1516,6 @@ export function WorkspaceShell({ activeModule = "all", onCountsChange }: Workspa
       ) : null}
 
       {showAllModules || activeModule === "dashboard" ? (
-      <motion.section id="daily-brief" {...cardMotion} className="panel p-5">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="title-sm">Daily Brief</h2>
-          <div className="flex flex-wrap gap-2 text-xs">
-            <span className="chip">Events: {dailyBrief?.summary.eventsToday ?? 0}</span>
-            <span className="chip">Tasks: {dailyBrief?.summary.pendingTasks ?? 0}</span>
-            <span className="chip">Reminders: {dailyBrief?.summary.remindersDue ?? 0}</span>
-            <span className="chip">Overdue: {dailyBrief?.summary.overdueTasks ?? 0}</span>
-            <span className="chip">Pinned: {dailyBrief?.summary.pinnedNotes ?? 0}</span>
-            <span className="chip">Notes: {dailyBrief?.summary.notesSaved ?? 0}</span>
-          </div>
-        </div>
-        <p className="mt-3 text-xs text-slate-500">
-          Today: {dailyBrief?.summary.eventsToday ?? 0} meetings, {dailyBrief?.summary.pendingTasks ?? 0} tasks, {dailyBrief?.summary.notesSaved ?? 0} notes.
-        </p>
-        <div className="mt-3 grid gap-2 md:grid-cols-2">
-          {(dailyBrief?.recentNotes ?? []).slice(0, 2).map((item) => (
-            <div key={item.id} className="timeline-card">
-              <p className="text-xs font-semibold text-slate-700">{item.title}</p>
-              <p className="line-clamp-1 text-[11px] text-slate-500">{item.content}</p>
-            </div>
-          ))}
-        </div>
-      </motion.section>
-      ) : null}
-
-      {showAllModules || activeModule === "dashboard" ? (
       <motion.section id="dashboard" {...cardMotion} className="panel p-5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
@@ -1645,7 +1541,7 @@ export function WorkspaceShell({ activeModule = "all", onCountsChange }: Workspa
             <Plus className="h-4 w-4" />
           </button>
         </div>
-        <div className="mt-4 grid gap-4 xl:grid-cols-[1.45fr_0.95fr]">
+        <div className="mt-4">
           <div className="soft-card p-4">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <h3 className="sub-title">Today tasks</h3>
@@ -1687,40 +1583,6 @@ export function WorkspaceShell({ activeModule = "all", onCountsChange }: Workspa
               )})}
             </div>
             {!moduleLoading.tasks && filteredTodayTasks.length === 0 ? <p className="mt-2 text-xs text-slate-400">No tasks in this status.</p> : null}
-          </div>
-          <div className="grid gap-4">
-            <div className="soft-card p-4">
-              <h3 className="sub-title">Upcoming</h3>
-              <div className="mt-3 grid gap-2">
-                {(dailyBrief?.todayEvents ?? []).slice(0, 2).map((meeting) => (
-                  <div key={meeting.id} className="timeline-card">
-                    <p className="text-sm font-semibold text-slate-100">{meeting.title}</p>
-                    <p className="text-xs text-slate-400">{toLabel(meeting.startAt)}</p>
-                  </div>
-                ))}
-                {(dailyBrief?.remindersDue ?? []).slice(0, 2).map((item) => (
-                  <div key={item.id} className="timeline-card">
-                    <p className="text-sm font-semibold text-slate-100">{item.title}</p>
-                    <p className="text-xs text-slate-400">{toLabel(item.reminderAt)}</p>
-                  </div>
-                ))}
-                {(dailyBrief?.todayEvents ?? []).length === 0 && (dailyBrief?.remindersDue ?? []).length === 0 ? <p className="text-xs text-slate-400">No meetings or reminders scheduled.</p> : null}
-              </div>
-            </div>
-            <div className="soft-card p-4">
-              <h3 className="sub-title">Module shortcuts</h3>
-              <div className="mt-3 grid gap-3">
-                {shortcutItems.map((item) => (
-                  <button key={item.id} className="module-shortcut-card text-left" onClick={item.run}>
-                    <div className="flex items-center justify-between gap-2">
-                      <p className="text-sm font-semibold text-slate-100">{item.label}</p>
-                      <ChevronRight className="h-4 w-4 text-cyan-300" />
-                    </div>
-                    <p className="mt-1 text-xs text-slate-400">{item.detail}</p>
-                  </button>
-                ))}
-              </div>
-            </div>
           </div>
         </div>
       </motion.section>
@@ -1782,6 +1644,7 @@ export function WorkspaceShell({ activeModule = "all", onCountsChange }: Workspa
 
       {showModule("study-links") ? (
       <CollapsibleCard id="study-links" title="Study Resources" icon={<Link2 className="h-4 w-4" />} defaultOpen={false}>
+        <div className="study-resources">
         <div className="grid gap-2 md:grid-cols-2">
           <input className="input" placeholder="Link title (e.g., GPT Physics Prompt)" value={linkTitle} onChange={(e) => setLinkTitle(e.target.value)} />
           <input className="input" placeholder="Resource URL (YouTube, article, GPT, Spotify)" value={linkUrl} onChange={(e) => setLinkUrl(e.target.value)} />
@@ -1829,16 +1692,11 @@ export function WorkspaceShell({ activeModule = "all", onCountsChange }: Workspa
             </div>
           ) : null}
         </div>
+        </div>
       </CollapsibleCard>
       ) : null}
 
-      {showAllModules || activeModule === "dashboard" || activeModule === "timeline" ? (
-      <CollapsibleCard id="timeline" title="Calendar & Timeline Schedule" icon={<Clock3 className="h-4 w-4" />}>
-        <CalendarTimelinePanel />
-      </CollapsibleCard>
-      ) : null}
-
-      {showAllModules || activeModule === "dashboard" || activeModule === "planner-insights" ? (
+      {showAllModules || activeModule === "planner-insights" ? (
       <CollapsibleCard id="planner-insights" title="Planner Insights" icon={<Lightbulb className="h-4 w-4" />}>
         <div className="grid gap-2">
           {plannerInsights.map((item) => (
@@ -1857,34 +1715,7 @@ export function WorkspaceShell({ activeModule = "all", onCountsChange }: Workspa
       ) : null}
 
       {showAllModules || activeModule === "dashboard" ? (
-      <div className="grid gap-6 xl:grid-cols-2">
-        <motion.section {...cardMotion} className="panel p-5">
-          <h2 className="title-sm mb-3"><CalendarCheck className="mr-2 inline h-4 w-4" /> Calendar + Reminders</h2>
-          <div className="grid gap-2 md:grid-cols-2">
-            <input className="input" placeholder="Meeting title" value={eventTitle} onChange={(e) => setEventTitle(e.target.value)} />
-            <input className="input" type="datetime-local" value={eventStart} onChange={(e) => setEventStart(e.target.value)} />
-            <input className="input" type="datetime-local" value={eventReminder} onChange={(e) => setEventReminder(e.target.value)} />
-            <button className="btn-secondary inline-flex items-center justify-center gap-2" onClick={createEvent}>
-              <AlarmClock className="h-4 w-4" /> Save event
-            </button>
-          </div>
-          <div className="mt-3 space-y-2">
-            {events.slice(0, 8).map((item) => (
-              <div key={item.id} className="rounded-lg border border-white/10 bg-slate-900/60 p-3">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xs text-slate-700">{item.title}</p>
-                    <p className="text-[11px] text-slate-400">Start: {toLabel(item.startAt)} {item.reminderAt ? `- Reminder: ${toLabel(item.reminderAt)}` : ""}</p>
-                  </div>
-                  <button onClick={() => patch(`/api/events/${item.id}`, { isDone: !item.isDone })}>
-                    <CheckCircle2 className={`h-4 w-4 ${item.isDone ? "text-emerald-300" : "text-slate-500"}`} />
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </motion.section>
-
+      <div>
         <motion.section {...cardMotion} className="panel p-5">
           <h2 className="title-sm mb-3">Sticky Notes</h2>
           <div className="grid gap-2 md:grid-cols-[1fr_180px_auto]">
@@ -1899,9 +1730,7 @@ export function WorkspaceShell({ activeModule = "all", onCountsChange }: Workspa
               <input className="input mt-2 h-12 w-full p-1" type="color" value={stickyColor} onChange={(e) => setStickyColor(e.target.value)} />
               <p className="mt-2 text-[11px] text-slate-400">{stickyContent.trim().length}/600</p>
             </div>
-            <button className="btn-primary px-4 py-2 text-sm" onClick={createSticky}>
-              <Highlighter className="mr-2 inline h-4 w-4" /> Save
-            </button>
+            <button className="btn-primary px-5 py-2 text-sm" onClick={createSticky}>Save note</button>
           </div>
           <div className="mt-2 flex flex-wrap gap-2">
             <button className="chip text-xs" onClick={() => applyStickyTemplate("revision")}>Revision</button>
@@ -1916,20 +1745,13 @@ export function WorkspaceShell({ activeModule = "all", onCountsChange }: Workspa
           </div>
           <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
             {moduleLoading.stickies ? renderModuleSkeleton(3) : null}
-            {!moduleLoading.stickies && filteredStickies.map((n, index) => {
-              const tilt = ((index % 4) - 1.5) * 1.8;
+            {!moduleLoading.stickies && filteredStickies.map((n) => {
               return (
               <motion.div
                 key={n.id}
-                drag
-                dragMomentum={false}
-                dragElastic={0.14}
-                dragConstraints={{ left: -80, right: 80, top: -80, bottom: 80 }}
-                onDragEnd={(_, info) => void updateStickyPosition(n, info)}
-                whileHover={{ y: -8, rotate: tilt + (tilt >= 0 ? 1.2 : -1.2), scale: 1.015 }}
-                whileTap={{ scale: 0.98 }}
+                whileHover={{ y: -2 }}
                 className="sticky-note-card text-xs text-slate-950"
-                style={{ background: n.color, rotate: `${tilt}deg`, x: n.posX ?? 0, y: n.posY ?? 0 }}
+                style={{ background: n.color }}
               >
                 <div className="flex items-start justify-between gap-2">
                   <div>
@@ -1969,7 +1791,7 @@ export function WorkspaceShell({ activeModule = "all", onCountsChange }: Workspa
       ) : null}
 
       {showAllModules || activeModule === "notes" ? (
-      <div className="grid gap-6 xl:grid-cols-2">
+      <div className="notes-canvas-stack">
         <CollapsibleCard id="notes" title="Notes" icon={<PenSquare className="h-4 w-4" />} defaultOpen={false}>
           <div className="space-y-2">
             <input ref={noteTitleInputRef} className="input" placeholder="Note title" value={noteTitle} onChange={(e) => setNoteTitle(e.target.value)} />
@@ -1978,9 +1800,6 @@ export function WorkspaceShell({ activeModule = "all", onCountsChange }: Workspa
               <button className="btn-secondary px-2 py-1 text-xs" onClick={() => applyNoteFormat("**", "**")}>Bold</button>
               <button className="btn-secondary px-2 py-1 text-xs" onClick={() => applyNoteFormat("*", "*")}>Italic</button>
               <button className="btn-secondary px-2 py-1 text-xs" onClick={() => applyNoteFormat("==", "==")}>Highlight</button>
-              <button className="btn-secondary px-2 py-1 text-xs" onClick={() => applyNoteFormat("^^", "^^")}>
-                <Underline className="mr-1 inline h-3 w-3" /> Underline
-              </button>
               <button className="chip text-xs" onClick={() => applyNoteColor("cyan")}>Cyan</button>
               <button className="chip text-xs" onClick={() => applyNoteColor("amber")}>Amber</button>
               <button className="chip text-xs" onClick={() => applyNoteColor("rose")}>Rose</button>
@@ -2209,25 +2028,29 @@ export function WorkspaceShell({ activeModule = "all", onCountsChange }: Workspa
 
       {showModule("videos") ? (
       <CollapsibleCard id="videos" title="YouTube Vault" icon={<Youtube className="h-4 w-4" />} defaultOpen={false}>
-        <div className="grid gap-2 md:grid-cols-2">
-          <input ref={videoTitleInputRef} className="input" placeholder="Video title" value={videoTitle} onChange={(e) => setVideoTitle(e.target.value)} />
-          <input className="input" placeholder="YouTube URL" value={videoUrl} onChange={(e) => setVideoUrl(e.target.value)} />
-        </div>
-        <div className="mt-2 grid gap-2 md:grid-cols-2">
-          <textarea className="input min-h-24" placeholder="Your comments / insights" value={videoComment} onChange={(e) => setVideoComment(e.target.value)} />
-          <textarea className="input min-h-24" placeholder="Tags (comma separated)" value={videoTags} onChange={(e) => setVideoTags(e.target.value)} />
-        </div>
-        <div className="mt-3">
-          <button disabled={focusLimitReached} className="btn-primary px-4 py-2 text-sm disabled:opacity-40" onClick={createVideo}>
-            Save video
-          </button>
-        </div>
-        <div className="mt-3 flex flex-wrap gap-2 text-xs">
+        <div className="youtube-vault">
+          <div className="youtube-vault-form">
+            <div className="grid gap-3 md:grid-cols-2">
+              <input ref={videoTitleInputRef} className="input" placeholder="Video title" value={videoTitle} onChange={(e) => setVideoTitle(e.target.value)} />
+              <input className="input" placeholder="YouTube URL" value={videoUrl} onChange={(e) => setVideoUrl(e.target.value)} />
+            </div>
+            <div className="mt-3 grid gap-3 md:grid-cols-2">
+              <textarea className="input min-h-28" placeholder="Your comments / insights" value={videoComment} onChange={(e) => setVideoComment(e.target.value)} />
+              <textarea className="input min-h-28" placeholder="Tags (comma separated)" value={videoTags} onChange={(e) => setVideoTags(e.target.value)} />
+            </div>
+            <div className="mt-4 flex items-center justify-between gap-4">
+              <p className="hidden text-xs text-slate-500 sm:block">Save lectures, tutorials, and useful learning resources.</p>
+              <button disabled={focusLimitReached} className="btn-primary ml-auto px-5 py-2.5 text-sm disabled:opacity-40" onClick={createVideo}>
+                Save video
+              </button>
+            </div>
+          </div>
+        <div className="youtube-vault-filters mt-6 flex flex-wrap gap-2 text-xs">
           <button className={`chip ${videoView === "all" ? "ring-1 ring-cyan-300/60" : ""}`} onClick={() => setVideoView("all")}>All</button>
           <button className={`chip ${videoView === "pending" ? "ring-1 ring-cyan-300/60" : ""}`} onClick={() => setVideoView("pending")}>Pending</button>
           <button className={`chip ${videoView === "completed" ? "ring-1 ring-cyan-300/60" : ""}`} onClick={() => setVideoView("completed")}>Completed</button>
         </div>
-        <div className="mt-4 grid gap-2 md:grid-cols-2">
+        <div className="mt-5 grid gap-3 md:grid-cols-2">
           {moduleLoading.videos ? renderModuleSkeleton(4) : null}
           {!moduleLoading.videos && [...filteredVideos].sort((a, b) => Number(a.isCompleted) - Number(b.isCompleted)).map((video) => (
             <div key={video.id} className="saved-card">
@@ -2251,18 +2074,26 @@ export function WorkspaceShell({ activeModule = "all", onCountsChange }: Workspa
             </div>
           ))}
           {!moduleLoading.videos && filteredVideos.length === 0 ? (
-            <div className="empty-state md:col-span-2">
+            <div className="youtube-vault-empty empty-state md:col-span-2">
               <div className="empty-illustration"><Youtube className="h-6 w-6" /></div>
               <p className="text-sm font-semibold text-slate-700">No videos in this view</p>
               <p className="mt-1 text-xs text-slate-500">Save a YouTube lecture or switch the current video filter.</p>
             </div>
           ) : null}
         </div>
+        </div>
       </CollapsibleCard>
       ) : null}
 
       {showModule("files") ? (
       <CollapsibleCard id="files" title="Files Organizer" icon={<FileStack className="h-4 w-4" />} defaultOpen={false}>
+        <div className="mb-6 flex flex-col gap-4 rounded-xl border border-cyan-100 bg-cyan-50/60 p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-sm font-semibold text-slate-800">File Management + Library</p>
+            <p className="mt-1 text-xs leading-5 text-slate-600">Use every Workspace organizer feature below. Open Library anytime for document folders, tags, previews, and related YouTube or ChatGPT resources.</p>
+          </div>
+          <Link href="/documents" className="btn-primary shrink-0 px-4 py-2 text-sm">Open Library</Link>
+        </div>
         <div className="grid gap-2 md:grid-cols-2">
           <input ref={fileNameInputRef} className="input" placeholder="File name" value={fileName} onChange={(e) => setFileName(e.target.value)} />
           <input className="input" placeholder="Path or URL" value={filePath} onChange={(e) => setFilePath(e.target.value)} />
