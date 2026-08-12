@@ -1,157 +1,312 @@
-#studyOrbit - Organising Digital Life 
+# StudyOrbit 🚀
 
-A full-stack Next.js app to unify scattered digital data (notes, links, files, tasks, calendar items, emails) into one context-aware workspace.
+### AI-Powered Academic Command Center
 
-## Stack
+StudyOrbit is a full-stack AI-powered productivity and career workspace designed for students.
 
-- Frontend: Next.js App Router + React + Tailwind CSS
-- UI: Dynamic glassmorphism and depth/3D-style cards with Framer Motion
-- Backend: Next.js API routes
-- DB: SQLite with Prisma ORM
-- Auth: Supabase Auth (magic link) with fallback demo mode for local testing
+It brings your **documents, tasks, calendar, focus sessions, career planning, notifications, profile data, and AI assistance** into one authenticated workspace.
 
-## Key Features
+Instead of switching between multiple productivity tools, StudyOrbit provides one private environment where your academic and career information can be organized, searched, analyzed, and acted upon.
 
-- Unified capture flow for multiple artifact types
-- Project spaces for contextual organization
-- Context retrieval API that ranks highlights by urgency/type/status
-- Search and grouping by project/topic/time metadata
-- Mobile-responsive dashboard + landing page
+---
 
-## Routes
+## ✨ Why StudyOrbit?
 
-- `/` landing page
-- `/workspace` main product UI
-- `/api/projects` GET/POST
-- `/api/artifacts` GET/POST
-- `/api/artifacts/[id]` PATCH
-- `/api/context` GET
+Students often manage their academic life across multiple disconnected tools:
 
-## Quick Start
+- 📄 PDFs and study documents
+- 📝 Notes and saved resources
+- 📅 Deadlines and calendar events
+- ⏱️ Focus sessions
+- 🎯 Career goals
+- 📊 Skills and career readiness
+- 🔔 Deadline notifications
+- 🤖 AI assistance
 
-1. Install dependencies:
+StudyOrbit brings these workflows together into one context-aware platform.
 
-```bash
-npm install
-```
+> **One workspace for studying, focusing, organizing, and planning your career.**
 
-2. Copy env template:
+---
 
-```bash
-cp .env.example .env
-```
+# 🌟 Core Features
 
-For PowerShell:
+## 🔐 Secure Authentication
 
-```powershell
-Copy-Item .env.example .env
-```
+StudyOrbit uses Firebase Authentication with protected server sessions.
 
-3. Generate Prisma client:
+### Supported authentication
 
-```bash
-npm run db:generate
-```
+- Email & password login
+- Email & password signup
+- Google authentication
+- Google account chooser
+- Forgot-password flow
+- Logout
+- Persistent authenticated sessions
+- Server-side session verification
 
-4. Create DB schema:
+### Security principles
 
-```bash
-npm run db:migrate
-```
+- No guest access
+- No demo user creation
+- No automatic dashboard access
+- Protected authenticated routes
+- Server-side page authentication
+- API authentication
+- User-specific database records
 
-If migration engine fails on your machine, use:
+Unauthenticated users cannot access the private workspace.
 
-```bash
-npm run db:push
-```
+---
 
-5. Run app:
+# 🏠 Landing Page
 
-```bash
-npm run dev
-```
+The landing page introduces StudyOrbit and directs users toward authentication.
 
-## Deployment Reality Check
+### Includes
 
-The app is production-build ready, but public deployment depends on your database setup:
+- StudyOrbit branding
+- Product overview
+- Feature highlights
+- Workspace visualization
+- Get Started CTA
+- Sign In CTA
+- Responsive layout
 
-- `SQLite` works locally.
-- `Vercel` and similar serverless hosts should use hosted Postgres instead of `file:./dev.db`.
-- File uploads are already stored in the database, so there is no separate object storage requirement for the current MVP.
+---
 
-## Recommended Production Setup
+# 📊 Dashboard
 
-Use:
+The Dashboard acts as the student's academic command center.
 
-- Hosting: `Vercel`
-- Database: `Supabase Postgres`
-- Auth: existing `Supabase Auth`
+It surfaces real user data such as:
 
-### Required production env vars
+- Today's tasks
+- Upcoming deadlines
+- Focus minutes
+- Recent documents
+- Career goals
+- Workspace activity
+- AI entry point
 
-```env
-DATABASE_URL="postgresql://postgres:YOUR_PASSWORD@db.YOUR_PROJECT_REF.supabase.co:5432/postgres"
-NEXT_PUBLIC_SUPABASE_URL="https://YOUR_PROJECT.supabase.co"
-NEXT_PUBLIC_SUPABASE_ANON_KEY="YOUR_SUPABASE_ANON_KEY"
-```
+The dashboard does **not** use fake demo records or seeded user activity.
 
-### Get the database connection string from Supabase
+When data is unavailable, StudyOrbit shows contextual empty states instead.
 
-1. Open Supabase project dashboard.
-2. Go to `Settings -> Database`.
-3. Copy the Postgres connection string.
-4. Put it into `DATABASE_URL`.
+---
 
-## Vercel Deployment
+# 📚 Documents
 
-1. Push this repo to GitHub.
-2. Import the repo into Vercel.
-3. Add the env vars:
-   - `DATABASE_URL`
-   - `NEXT_PUBLIC_SUPABASE_URL`
-   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-4. Deploy.
+StudyOrbit provides a dedicated document workspace for academic material.
 
-### After first deploy
+### Features
 
-Run schema sync once against your production database:
+- Upload documents
+- PDF/DOCX processing
+- Document search
+- Document filtering
+- Tags
+- Folder organization
+- Rename documents
+- Move documents
+- Document preview
+- Download documents
+- Delete documents
+- Resource links
 
-```bash
-npm run db:push
-```
+Documents are associated with the authenticated user's profile.
 
-If you prefer migration-based deployment later, use:
+---
 
-```bash
-npm run db:deploy
-```
+# 📅 Calendar
 
-## What I verified locally
+The Calendar provides a structured view of academic schedules and deadlines.
 
-- Production build passes with `npm run build`
-- Prisma client generation works
-- The current codebase is ready to connect to a hosted production database once `DATABASE_URL` is replaced
+### Features
 
-## Supabase Auth Setup (Optional but recommended)
+- Calendar events
+- Deadline tracking
+- Month-based view
+- Event organization
+- Responsive calendar layout
+- Event overflow handling
+- Upcoming deadline visibility
 
-Set these in `.env`:
+The interface is optimized to remain usable on smaller screens without crushed calendar cells.
 
-```env
-NEXT_PUBLIC_SUPABASE_URL="https://YOUR_PROJECT.supabase.co"
-NEXT_PUBLIC_SUPABASE_ANON_KEY="YOUR_SUPABASE_ANON_KEY"
-```
+---
 
-Without these, the app automatically runs in demo auth mode using local browser identity.
+# ⏱️ Focus
 
-## Hackathon Pitch Angle
+StudyOrbit includes a dedicated focus environment for productive study sessions.
 
-- Problem: Digital information is fragmented across tools and timelines.
-- Solution: DLife creates a single memory layer with context grouping and priority retrieval.
-- Demo flow: add projects -> capture mixed artifacts -> retrieve top highlights and grouped contexts.
+### Features
 
-## Suggested Next Upgrades
+- Focus timer
+- Study sessions
+- Session tracking
+- Focus statistics
+- Responsive timer controls
+- Focus history
 
-- OAuth connectors (Google Drive, Gmail, Notion, Slack)
-- Semantic embeddings for smarter context clustering
-- Team workspaces + sharing permissions
-- Time-based timeline and weekly briefing generation
+Focus activity is associated with the authenticated user.
+
+---
+
+# 🌿 Relax
+
+Relax provides a lightweight wellness and recovery environment designed around focused study breaks.
+
+### Features
+
+- Ambient experiences
+- Nature sounds
+- Music
+- Breathing exercises
+- Mood tracking
+- Relax sessions
+- Session history
+
+Relax activity is stored against the authenticated user's profile where applicable.
+
+---
+
+# 🎯 Career
+
+StudyOrbit provides a career-planning workspace for students.
+
+### Features
+
+- Career profile
+- Education information
+- Skills
+- Interests
+- Career goals
+- Career readiness
+- Skill-gap information
+- Career roadmaps
+- AI-assisted career analysis
+
+Career information is private to the authenticated user.
+
+---
+
+# 🔔 Notifications
+
+StudyOrbit provides deadline-aware notifications.
+
+The reminder system focuses on meaningful deadlines rather than generating unnecessary inbox noise.
+
+### Current reminder logic
+
+Notifications can be generated for:
+
+- Overdue tasks/events
+- Deadlines within the next 48 hours
+
+A duplicate guard prevents repeated deadline alerts within the configured window.
+
+---
+
+# 🤖 AI Workspace
+
+StudyOrbit includes an AI-powered workspace for interacting with academic and career context.
+
+### AI capabilities include
+
+- AI chat
+- Conversation history
+- Context-aware assistance
+- Document-related AI workflows
+- Career analysis
+- Resume analysis
+- AI-powered recommendations
+
+The AI layer is designed to work with authenticated user context rather than a shared demo identity.
+
+---
+
+# 👤 Profile
+
+The Profile area contains the user's academic and career identity.
+
+### Profile information
+
+- Name
+- Email
+- Avatar
+- Education
+- College
+- Degree
+- Skills
+- Interests
+- Career goals
+- LinkedIn
+- GitHub
+- Career readiness
+
+Profile information is linked to the authenticated Firebase identity.
+
+---
+
+# 🧠 User Data Isolation
+
+Every authenticated user receives a private `UserProfile`.
+
+User records are scoped using the internal user profile relationship.
+
+This keeps data such as:
+
+- Documents
+- Events
+- Focus sessions
+- Career information
+- Goals
+- Notifications
+- Mood entries
+- AI-related records
+
+associated with the correct authenticated user.
+
+StudyOrbit does not intentionally create a shared guest workspace.
+
+---
+
+# 🏗️ Architecture
+
+```text
+                    ┌─────────────────────┐
+                    │      StudyOrbit     │
+                    │    Web Application  │
+                    └──────────┬──────────┘
+                               │
+                 ┌─────────────┴─────────────┐
+                 │                           │
+        ┌────────▼────────┐        ┌─────────▼────────┐
+        │   Next.js UI    │        │   Authentication  │
+        │   React / App   │        │     Firebase      │
+        │     Router      │        └─────────┬────────┘
+        └────────┬────────┘                  │
+                 │                           │
+                 └─────────────┬─────────────┘
+                               │
+                       ┌───────▼────────┐
+                       │ Next.js API    │
+                       │ Route Handlers │
+                       └───────┬────────┘
+                               │
+                    ┌──────────▼──────────┐
+                    │       Prisma       │
+                    │        ORM         │
+                    └──────────┬──────────┘
+                               │
+                    ┌──────────▼──────────┐
+                    │    PostgreSQL DB    │
+                    └─────────────────────┘
+
+                               │
+                    ┌──────────▼──────────┐
+                    │     AI Services     │
+                    │ Gemini / AI Provider │
+                    └─────────────────────┘
