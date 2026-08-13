@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getFocusDayWindow } from "@/lib/focus-date-window";
 import { getUserFromRequest } from "@/lib/route-auth";
 
 export async function GET(req: NextRequest) {
@@ -7,10 +8,7 @@ export async function GET(req: NextRequest) {
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const now = new Date();
-  const dayStart = new Date();
-  dayStart.setHours(0, 0, 0, 0);
-  const dayEnd = new Date(dayStart);
-  dayEnd.setDate(dayEnd.getDate() + 1);
+  const { start: dayStart, end: dayEnd } = getFocusDayWindow(now);
 
   const [todayEvents, todayTasks, overdueTasks, remindersDue, pinnedSticky, recentVideos, recentNotes, focusSessions] = await Promise.all([
     prisma.plannerEvent.findMany({
@@ -48,7 +46,7 @@ export async function GET(req: NextRequest) {
       take: 4,
     }),
     prisma.focusSession.findMany({
-      where: { userId: user.id, createdAt: { gte: dayStart, lt: dayEnd } },
+      where: { userId: user.id, startedAt: { gte: dayStart, lt: dayEnd } },
     }),
   ]);
 

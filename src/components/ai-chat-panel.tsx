@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState, type FormEvent } from "react";
-import { Bot, MessageSquare, Send, Sparkles, Menu } from "lucide-react";
+import { Bot, MessageSquare, Send, Sparkles } from "lucide-react";
 import { authHeaders as getAuthHeaders } from "@/lib/firebase-client";
 
 type Conversation = { id: string; title: string | null; _count?: { messages: number } };

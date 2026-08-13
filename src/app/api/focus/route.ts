@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
+import { getFocusDayWindow } from "@/lib/focus-date-window";
 import { getUserFromRequest } from "@/lib/route-auth";
 
 const schema = z.object({
@@ -17,12 +18,11 @@ export async function GET(req: NextRequest) {
   const user = await getUserFromRequest(req);
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const since = new Date();
-  since.setHours(0, 0, 0, 0);
+  const { start } = getFocusDayWindow();
 
   const sessions = await prisma.focusSession.findMany({
-    where: { userId: user.id, createdAt: { gte: since } },
-    orderBy: { createdAt: "desc" },
+    where: { userId: user.id, startedAt: { gte: start } },
+    orderBy: { startedAt: "desc" },
     take: 50,
   });
 

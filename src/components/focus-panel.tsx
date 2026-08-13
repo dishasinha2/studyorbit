@@ -188,6 +188,35 @@ export function FocusPanel() {
     };
   }, []);
 
+  useEffect(() => {
+    const refreshAtMidnight = () => {
+      const now = new Date();
+      const nextMidnight = new Date(now);
+      nextMidnight.setHours(24, 0, 0, 0);
+      const msUntilMidnight = nextMidnight.getTime() - now.getTime();
+
+      const timeoutId = setTimeout(() => {
+        void fetchStats();
+      }, msUntilMidnight + 1000);
+
+      return () => clearTimeout(timeoutId);
+    };
+
+    const cleanup = refreshAtMidnight();
+    const handleVisibility = () => {
+      if (!document.hidden) {
+        void fetchStats();
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibility);
+
+    return () => {
+      cleanup();
+      document.removeEventListener("visibilitychange", handleVisibility);
+    };
+  }, [fetchStats]);
+
   // Set timer preset duration when switching modes
   const applyTimerPreset = useCallback((mode: TimerMode) => {
     setIsRunning(false);
