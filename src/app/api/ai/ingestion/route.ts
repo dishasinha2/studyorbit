@@ -3,6 +3,7 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { getUserFromRequest } from "@/lib/route-auth";
 import { PlainTextExtractionService, chunkText } from "@/lib/ai/ingestion";
+import { readStoredObject } from "@/lib/storage";
 import {
   createLocalEmbedding,
   LOCAL_EMBEDDING_DIMENSIONS,
@@ -31,19 +32,29 @@ export async function POST(req: NextRequest) {
     data: { userId: user.id, documentId: document.id, status: "EXTRACTING", provider: "local-placeholder" },
   });
 
-  if (!document.storageData) {
-    await prisma.documentIngestionJob.update({
-      where: { id: job.id },
-      data: { status: "FAILED", error: "No stored file data available for extraction." },
-    });
-    return NextResponse.json({ error: "No stored file data available for extraction." }, { status: 422 });
+  // Load bytes either from stored DB blob or from configured storage backend
+  let fileBuffer: Buffer | null = null;
+  if (document.storageData) {
+    fileBuffer = Buffer.from(document.storageData);
+  } else {
+    // Attempt to read from storage backend using the document.storageKey
+    try {
+      const stored = await prisma.document.findUnique({ where: { id: document.id }, select: { storageKey: true } });
+      if (stored?.storageKey) {
+        const downloaded = await readStoredObject({ key: stored.storageKey });
+        if (downloaded) fileBuffer = Buffer.from(downloaded);
+      }
+    } catch (err) {
+      // ignore and let extractor handle null buffer
+    }
   }
 
   const extractor = new PlainTextExtractionService();
   let extracted;
   try {
+    if (!fileBuffer) throw new Error("No stored file data available for extraction.");
     extracted = await extractor.extract({
-      buffer: Buffer.from(document.storageData),
+      buffer: fileBuffer,
       mimeType: document.mimeType,
       filename: document.originalName || document.name,
     });
