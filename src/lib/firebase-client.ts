@@ -142,7 +142,15 @@ export async function getFirebaseIdToken() {
 
 export async function authHeaders(): Promise<Record<string, string>> {
   const token = await getFirebaseIdToken();
-  return token ? { Authorization: `Bearer ${token}` } : {};
+  const base: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
+  try {
+    if (typeof window !== "undefined") {
+      base["X-Client-TZ-Offset"] = String(new Date().getTimezoneOffset());
+    }
+  } catch {
+    // ignore
+  }
+  return base;
 }
 
 /**

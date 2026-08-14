@@ -8,7 +8,10 @@ export async function GET(req: NextRequest) {
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const now = new Date();
-  const { start: dayStart, end: dayEnd } = getFocusDayWindow(now);
+  const tzOffsetHeader = req.headers.get("x-client-tz-offset");
+  const parsedOffset = tzOffsetHeader ? Number.parseInt(tzOffsetHeader, 10) : undefined;
+  const tzOffset = Number.isFinite(parsedOffset as number) ? (parsedOffset as number) : undefined;
+  const { start: dayStart, end: dayEnd } = getFocusDayWindow(now, tzOffset);
 
   const [todayEvents, todayTasks, overdueTasks, remindersDue, pinnedSticky, recentVideos, recentNotes, focusSessions] = await Promise.all([
     prisma.plannerEvent.findMany({

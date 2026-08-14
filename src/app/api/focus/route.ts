@@ -18,7 +18,10 @@ export async function GET(req: NextRequest) {
   const user = await getUserFromRequest(req);
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { start } = getFocusDayWindow();
+  const tzOffsetHeader = req.headers.get("x-client-tz-offset");
+  const parsedOffset = tzOffsetHeader ? Number.parseInt(tzOffsetHeader, 10) : undefined;
+  const tzOffset = Number.isFinite(parsedOffset as number) ? (parsedOffset as number) : undefined;
+  const { start } = getFocusDayWindow(new Date(), tzOffset);
 
   const sessions = await prisma.focusSession.findMany({
     where: { userId: user.id, startedAt: { gte: start } },

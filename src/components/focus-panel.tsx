@@ -148,6 +148,7 @@ export function FocusPanel() {
       const session = readStoredSession();
       const token = (await getFirebaseIdToken()) || session?.idToken;
       const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
+      headers["X-Client-TZ-Offset"] = String(new Date().getTimezoneOffset());
 
       const res = await fetch("/api/focus", { headers });
       if (res.ok) {
@@ -169,6 +170,7 @@ export function FocusPanel() {
         const session = readStoredSession();
         const token = (await getFirebaseIdToken()) || session?.idToken;
         const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
+        headers["X-Client-TZ-Offset"] = String(new Date().getTimezoneOffset());
 
         const res = await fetch("/api/focus", { headers });
         if (res.ok && alive) {

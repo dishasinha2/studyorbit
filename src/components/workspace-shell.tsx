@@ -211,7 +211,7 @@ export function WorkspaceShell({ activeModule = "all", onCountsChange }: Workspa
 
   const authHeaders = useMemo<Record<string, string>>(() => {
     if (!token) return {} as Record<string, string>;
-    return { Authorization: `Bearer ${token}` };
+    return { Authorization: `Bearer ${token}`, "X-Client-TZ-Offset": String(new Date().getTimezoneOffset()) };
   }, [token]);
 
   const focusLimitReached = focusUsedMinutes >= screenLimitMin;
