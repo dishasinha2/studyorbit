@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { getUserFromRequest } from "@/lib/route-auth";
-import { buildRetrievalAnswer, buildStoredContextNotFoundReply, isCareerRelated, retrieveCareerContext, retrieveDocumentContext } from "@/lib/ai/retrieval";
+import { buildRetrievalAnswer, buildStoredContextNotFoundReply, isCareerRelated, retrieveCareerContext, retrieveDocumentContext, detectUploadedFileQuery } from "@/lib/ai/retrieval";
 import { type AiProviderId, type ChatMemoryMessage } from "@/lib/ai/providers";
 import { routeChatCompletion } from "@/lib/ai/provider-router";
 import { recordCareerActivity } from "@/lib/gamification";
@@ -97,7 +97,30 @@ export async function POST(req: NextRequest) {
     },
   });
 
-  if (!isDocumentScoped && !isCareerRelated(parsed.data.message)) {
+  // Detect uploaded-file intent BEFORE career-only checks
+  let forcedDocumentId: string | undefined = undefined;
+  if (!isDocumentScoped) {
+    const detection = await detectUploadedFileQuery(user.id, parsed.data.message);
+    if (detection.isUploadedQuery) {
+      if (detection.documentId) {
+        forcedDocumentId = detection.documentId;
+      } else {
+        // The user referenced an uploaded file but we couldn't resolve which one
+        const content = "I couldn't find that uploaded file in your StudyOrbit Library. Please upload it again.";
+        const assistantMessage = await prisma.message.create({
+          data: {
+            conversationId,
+            role: "ASSISTANT",
+            content,
+            metadata: { policy: "file-not-found", mode: "retrieval-only" },
+          },
+        });
+        return NextResponse.json({ conversationId, message: assistantMessage, citations: [], ai: { provider: "retrieval", model: null, fallbackStatus: "retrieval-only" } });
+      }
+    }
+  }
+
+  if (!isDocumentScoped && !forcedDocumentId && !isCareerRelated(parsed.data.message)) {
     const content = "I can only help with career guidance, resumes, interviews, skills, roadmaps, certifications, placements, and job preparation.";
     const assistantMessage = await prisma.message.create({
       data: {
@@ -115,9 +138,30 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  const contexts = isDocumentScoped && documentId
-    ? await retrieveDocumentContext({ userId: user.id, documentId, query: parsed.data.message, topK: 6 })
-    : await retrieveCareerContext({ userId: user.id, query: parsed.data.message, topK: 6 });
+  const effectiveDocumentId = documentId ?? forcedDocumentId;
+  const documentScopeFlag = Boolean(effectiveDocumentId);
+  // If user requested a full-document summary/explain, return all chunks for the document
+  const summaryTriggers = [/\bsummar/i, /\bexplain\b/i, /\boverview\b/i, /\bwhole\b/i, /\bentire\b/i, /\bchapter\b/i];
+  const isSummaryRequest = documentScopeFlag && summaryTriggers.some((rx) => rx.test(parsed.data.message));
+
+  let contexts;
+  if (documentScopeFlag && isSummaryRequest) {
+    const storedChunks = await prisma.documentChunk.findMany({ where: { documentId: effectiveDocumentId!, userId: user.id }, orderBy: { chunkIndex: "asc" } });
+    const doc = await prisma.document.findFirst({ where: { id: effectiveDocumentId!, userId: user.id }, select: { id: true, name: true, summary: true } });
+    const chunkContexts = storedChunks.map((chunk) => ({
+      chunkId: chunk.id,
+      documentId: chunk.documentId,
+      documentName: doc?.name ?? chunk.documentId,
+      content: chunk.content,
+      score: 1,
+    }));
+    // Prefer document summary as first context if available
+    contexts = doc && doc.summary ? [{ chunkId: null, documentId: doc.id, documentName: doc.name, content: doc.summary, score: 2 }, ...chunkContexts] : chunkContexts;
+  } else {
+    contexts = documentScopeFlag
+      ? await retrieveDocumentContext({ userId: user.id, documentId: effectiveDocumentId!, query: parsed.data.message, topK: 12 })
+      : await retrieveCareerContext({ userId: user.id, query: parsed.data.message, topK: 6 });
+  }
   const citations = contexts.map((context) => ({
     documentId: context.documentId,
     chunkId: context.chunkId,
@@ -147,7 +191,7 @@ export async function POST(req: NextRequest) {
           model: null,
           fallbackStatus: "retrieval-only",
           groundedContextCount: 0,
-          documentScope: isDocumentScoped,
+          documentScope: documentScopeFlag,
         },
       },
     });
@@ -162,7 +206,7 @@ export async function POST(req: NextRequest) {
     model: null,
     fallbackStatus: "retrieval-only",
     groundedContextCount: contexts.length,
-    documentScope: isDocumentScoped,
+    documentScope: documentScopeFlag,
   };
 
   const testScenario = process.env.ALLOW_AI_PROVIDER_TESTING === "true" ? req.headers.get("x-ai-test-scenario") || undefined : undefined;
@@ -181,7 +225,7 @@ export async function POST(req: NextRequest) {
           role: message.role.toLowerCase() as ChatMemoryMessage["role"],
           content: message.content,
         })),
-        { documentScope: isDocumentScoped },
+        { documentScope: documentScopeFlag },
       ),
     },
   });
@@ -214,7 +258,7 @@ export async function POST(req: NextRequest) {
       fallbackReason: routed.fallbackReason,
       attempts: routed.attempts.map((attempt) => ({ ...attempt, usage: attempt.usage ? { ...attempt.usage } : null })),
       groundedContextCount: contexts.length,
-      documentScope: isDocumentScoped,
+      documentScope: documentScopeFlag,
     };
   }
 

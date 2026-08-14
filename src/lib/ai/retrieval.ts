@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 import { createLocalEmbedding, vectorSqlLiteral } from "@/lib/ai/embeddings";
 
 const careerTerms = [
@@ -23,6 +24,72 @@ const careerTerms = [
 export function isCareerRelated(input: string) {
   const text = input.toLowerCase();
   return careerTerms.some((term) => text.includes(term));
+}
+
+export async function detectUploadedFileQuery(userId: string, input: string) {
+  const text = input.toLowerCase();
+  const uploadedIndicators = [
+    "my file",
+    "uploaded file",
+    "this pdf",
+    "this document",
+    "my notes",
+    "uploaded notes",
+    "this resume",
+    "this document i uploaded",
+    "this file",
+    "the uploaded",
+  ];
+
+  // include common variants
+  uploadedIndicators.push("my pdf", "my document", "my doc", "my docx", "my pptx", "my uploaded");
+
+  const hasIndicator = uploadedIndicators.some((k) => text.includes(k));
+
+  // Also treat explicit filenames or extensions as uploaded-file queries
+  const extensionMatch = /\b\w+\.(pdf|docx|txt|doc|pptx)\b/i.test(input);
+
+  // Quick check: if message mentions common keywords or extensions, consider uploaded-file intent
+  if (!hasIndicator && !extensionMatch) {
+    return { isUploadedQuery: false };
+  }
+
+  // Try to find a matching document owned by the user
+  const tokens = input
+    .replace(/["'.,:;!?()\[\]]/g, " ")
+    .split(/\s+/)
+    .map((t) => t.trim())
+    .filter((t) => t.length > 2);
+
+  // Look for documents whose name appears in the message (case-insensitive)
+  const nameMatches = await prisma.document.findMany({
+    where: {
+      userId,
+      OR: [
+        { name: { contains: input, mode: Prisma.QueryMode.insensitive } },
+        ...tokens.slice(0, 6).map((tok) => ({ name: { contains: tok, mode: Prisma.QueryMode.insensitive } })),
+      ],
+    },
+    orderBy: { uploadedAt: "desc" },
+    take: 10,
+  });
+
+  if (nameMatches.length === 1) {
+    return { isUploadedQuery: true, documentId: nameMatches[0].id };
+  }
+
+  if (extensionMatch && nameMatches.length > 0) {
+    // If extension present and multiple matches, try to find exact filename token
+    const exact = nameMatches.find((d) => new RegExp("\\b" + d.name.replace(/[-\\/\\^$*+?.()|[\]{}]/g, "\\$&") + "\\b", "i").test(input));
+    if (exact) return { isUploadedQuery: true, documentId: exact.id };
+  }
+
+  // If user only has one uploaded document, use it as the target
+  const userDocs = await prisma.document.findMany({ where: { userId }, orderBy: { uploadedAt: "desc" }, take: 2 });
+  if (userDocs.length === 1) return { isUploadedQuery: true, documentId: userDocs[0].id };
+
+  // Ambiguous: user likely meant an uploaded file but none could be resolved uniquely
+  return { isUploadedQuery: true, documentId: null };
 }
 
 export type RetrievedContext = {
@@ -51,8 +118,8 @@ export async function retrieveDocumentContext(input: { userId: string; documentI
         userId: input.userId,
         documentId: input.documentId,
         OR: [
-          { content: { contains: input.query, mode: "insensitive" } },
-          { document: { name: { contains: input.query, mode: "insensitive" } } },
+          { content: { contains: input.query, mode: Prisma.QueryMode.insensitive } },
+          { document: { name: { contains: input.query, mode: Prisma.QueryMode.insensitive } } },
         ],
       },
       include: { document: { select: { id: true, name: true } } },
@@ -68,9 +135,9 @@ export async function retrieveDocumentContext(input: { userId: string; documentI
         userId: input.userId,
         contextKey: `document:${input.documentId}`,
         OR: [
-          { title: { contains: input.query, mode: "insensitive" } },
-          { content: { contains: input.query, mode: "insensitive" } },
-          { source: { contains: input.query, mode: "insensitive" } },
+          { title: { contains: input.query, mode: Prisma.QueryMode.insensitive } },
+          { content: { contains: input.query, mode: Prisma.QueryMode.insensitive } },
+          { source: { contains: input.query, mode: Prisma.QueryMode.insensitive } },
         ],
       },
       take: 20,
@@ -149,9 +216,9 @@ export async function retrieveCareerContext(input: { userId: string; query: stri
       where: {
         userId: input.userId,
         OR: [
-          { content: { contains: input.query, mode: "insensitive" } },
-          { document: { name: { contains: input.query, mode: "insensitive" } } },
-          { document: { tagsJson: { contains: input.query, mode: "insensitive" } } },
+          { content: { contains: input.query, mode: Prisma.QueryMode.insensitive } },
+          { document: { name: { contains: input.query, mode: Prisma.QueryMode.insensitive } } },
+          { document: { tagsJson: { contains: input.query, mode: Prisma.QueryMode.insensitive } } },
         ],
       },
       include: { document: { select: { id: true, name: true } } },
@@ -162,11 +229,11 @@ export async function retrieveCareerContext(input: { userId: string; query: stri
       where: {
         userId: input.userId,
         OR: [
-          { name: { contains: input.query, mode: "insensitive" } },
-          { summary: { contains: input.query, mode: "insensitive" } },
-          { category: { contains: input.query, mode: "insensitive" } },
-          { tagsJson: { contains: input.query, mode: "insensitive" } },
-        ],
+              { name: { contains: input.query, mode: Prisma.QueryMode.insensitive } },
+              { summary: { contains: input.query, mode: Prisma.QueryMode.insensitive } },
+              { category: { contains: input.query, mode: Prisma.QueryMode.insensitive } },
+              { tagsJson: { contains: input.query, mode: Prisma.QueryMode.insensitive } },
+            ],
       },
       take: 20,
       orderBy: { uploadedAt: "desc" },
@@ -176,9 +243,9 @@ export async function retrieveCareerContext(input: { userId: string; query: stri
         userId: input.userId,
         type: { in: ["NOTE", "LINK"] },
         OR: [
-          { title: { contains: input.query, mode: "insensitive" } },
-          { content: { contains: input.query, mode: "insensitive" } },
-          { source: { contains: input.query, mode: "insensitive" } },
+          { title: { contains: input.query, mode: Prisma.QueryMode.insensitive } },
+          { content: { contains: input.query, mode: Prisma.QueryMode.insensitive } },
+          { source: { contains: input.query, mode: Prisma.QueryMode.insensitive } },
         ],
       },
       take: 20,
