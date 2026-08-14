@@ -104,6 +104,18 @@ export async function POST(req: NextRequest) {
     if (detection.isUploadedQuery) {
       if (detection.documentId) {
         forcedDocumentId = detection.documentId;
+      } else if (detection.candidates && detection.candidates.length > 0) {
+        // Ambiguous: present the user with candidate documents to choose from
+        const content = `I found multiple documents that match your description. Which one did you mean?\n\n` + detection.candidates.map((c, i) => `${i + 1}. ${c.name}`).join("\n");
+        const assistantMessage = await prisma.message.create({
+          data: {
+            conversationId,
+            role: "ASSISTANT",
+            content,
+            metadata: { policy: "file-ambiguous", candidates: detection.candidates, mode: "retrieval-only" },
+          },
+        });
+        return NextResponse.json({ conversationId, message: assistantMessage, citations: [], ai: { provider: "retrieval", model: null, fallbackStatus: "retrieval-only" } });
       } else {
         // The user referenced an uploaded file but we couldn't resolve which one
         const content = "I couldn't find that uploaded file in your StudyOrbit Library. Please upload it again.";

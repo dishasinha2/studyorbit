@@ -27,69 +27,77 @@ export function isCareerRelated(input: string) {
 }
 
 export async function detectUploadedFileQuery(userId: string, input: string) {
-  const text = input.toLowerCase();
-  const uploadedIndicators = [
-    "my file",
-    "uploaded file",
-    "this pdf",
-    "this document",
-    "my notes",
-    "uploaded notes",
-    "this resume",
-    "this document i uploaded",
-    "this file",
-    "the uploaded",
+  // Lightweight wrapper that uses the pure intent detector and then resolves documents
+  const intent = detectUploadedFileIntent(input);
+  if (!intent.isUploadedQuery) return { isUploadedQuery: false };
+
+  // Collect candidate documents matching tokens or full input
+  const tokens = intent.filenameTokens.slice(0, 8);
+  const orClauses: Prisma.DocumentWhereInput[] = [
+    { name: { contains: input, mode: Prisma.QueryMode.insensitive } },
+    ...tokens.map((tok) => ({ name: { contains: tok, mode: Prisma.QueryMode.insensitive } })),
   ];
 
-  // include common variants
-  uploadedIndicators.push("my pdf", "my document", "my doc", "my docx", "my pptx", "my uploaded");
-
-  const hasIndicator = uploadedIndicators.some((k) => text.includes(k));
-
-  // Also treat explicit filenames or extensions as uploaded-file queries
-  const extensionMatch = /\b\w+\.(pdf|docx|txt|doc|pptx)\b/i.test(input);
-
-  // Quick check: if message mentions common keywords or extensions, consider uploaded-file intent
-  if (!hasIndicator && !extensionMatch) {
-    return { isUploadedQuery: false };
-  }
-
-  // Try to find a matching document owned by the user
-  const tokens = input
-    .replace(/["'.,:;!?()\[\]]/g, " ")
-    .split(/\s+/)
-    .map((t) => t.trim())
-    .filter((t) => t.length > 2);
-
-  // Look for documents whose name appears in the message (case-insensitive)
   const nameMatches = await prisma.document.findMany({
-    where: {
-      userId,
-      OR: [
-        { name: { contains: input, mode: Prisma.QueryMode.insensitive } },
-        ...tokens.slice(0, 6).map((tok) => ({ name: { contains: tok, mode: Prisma.QueryMode.insensitive } })),
-      ],
-    },
+    where: { userId, OR: orClauses },
     orderBy: { uploadedAt: "desc" },
     take: 10,
   });
 
-  if (nameMatches.length === 1) {
-    return { isUploadedQuery: true, documentId: nameMatches[0].id };
+  if (nameMatches.length === 1) return { isUploadedQuery: true, documentId: nameMatches[0].id };
+
+  if (nameMatches.length > 1) {
+    return { isUploadedQuery: true, documentId: null, candidates: nameMatches.map((d) => ({ id: d.id, name: d.name })) };
   }
 
-  if (extensionMatch && nameMatches.length > 0) {
-    // If extension present and multiple matches, try to find exact filename token
-    const exact = nameMatches.find((d) => new RegExp("\\b" + d.name.replace(/[-\\/\\^$*+?.()|[\]{}]/g, "\\$&") + "\\b", "i").test(input));
-    if (exact) return { isUploadedQuery: true, documentId: exact.id };
-  }
-
-  // If user only has one uploaded document, use it as the target
+  // If user only has one uploaded document, return it
   const userDocs = await prisma.document.findMany({ where: { userId }, orderBy: { uploadedAt: "desc" }, take: 2 });
   if (userDocs.length === 1) return { isUploadedQuery: true, documentId: userDocs[0].id };
 
-  // Ambiguous: user likely meant an uploaded file but none could be resolved uniquely
+  // No matches found but intent present
   return { isUploadedQuery: true, documentId: null };
+}
+
+export function detectUploadedFileIntent(input: string) {
+  const text = input.toLowerCase();
+
+  const patterns = [
+    /\b(upload(ed)?\s+(file|pdf|docx|doc|document|notes|resume|file))\b/i,
+    /\b(the\s+file\s+i\s+uploaded)\b/i,
+    /\b(file\s+that\s+i\s+uploaded)\b/i,
+    /\b(pdf\s+(that\s+)?i\s+uploaded)\b/i,
+    /\b(document\s+(that\s+)?i\s+uploaded)\b/i,
+    /\b(my\s+(pdf|document|file|notes|resume))\b/i,
+    /\b(summariz|summarise|summarize|explain|what\s+does.*say|what\s+do\s+i\s+have\s+to\s+do|give\s+me\s+the\s+requirements|what\s+are\s+the\s+requirements|give\s+me\s+the\s+tasks)\b/i,
+  ];
+
+  const hasIndicator = patterns.some((rx) => rx.test(text));
+
+  // Also treat explicit filenames or extensions as uploaded-file queries
+  const extensionMatch = /\b[\w\-\. ]+\.(pdf|docx|txt|doc|pptx)\b/i.test(text);
+
+  if (!hasIndicator && !extensionMatch) return { isUploadedQuery: false, filenameTokens: [] };
+
+  // Extract filename-like tokens: quoted phrases or sequences before 'pdf' or 'document'
+  const tokens: string[] = [];
+  const quoted = Array.from(input.matchAll(/"([^"]+)"|'([^']+)'/g)).map((m) => m[1] || m[2]).filter(Boolean);
+  tokens.push(...quoted);
+
+  // tokens around keywords
+  const keywordSplit = input.split(/(?:pdf|docx|document|file|notes|resume)/i)[0];
+  if (keywordSplit) {
+    const seq = keywordSplit.trim().split(/\s+/).filter((t) => t.length > 2);
+    tokens.push(...seq.slice(-6));
+  }
+
+  // fallback: split input into words and include capitalized/meaningful words
+  const words = input.replace(/[^\w\s\-&]/g, " ").split(/\s+/).filter((w) => w.length > 2);
+  tokens.push(...words.slice(0, 10));
+
+  // Normalize tokens and dedupe
+  const filenameTokens = Array.from(new Set(tokens.map((t) => t.trim()).filter(Boolean))).slice(0, 12);
+
+  return { isUploadedQuery: true, filenameTokens };
 }
 
 export type RetrievedContext = {
